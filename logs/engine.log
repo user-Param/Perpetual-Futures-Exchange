@@ -1,0 +1,22 @@
+[snapshot] no existing snapshot loaded
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events
+Redis connect error: Connection refused
+[engine] shutting down...
+[snapshot] loaded engine_state.json
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events
+Redis connect error: Connection refused
+[engine] shutting down...
+[snapshot] loaded engine_state.json
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events
+Redis connect error: Connection refused
+[engine] shutting down...
+[snapshot] loaded engine_state.json
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events
+Redis connect error: Connection refused
+[engine] shutting down...
+[snapshot] loaded engine_state.json
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events
+Redis connect error: Connection refused
+[engine] shutting down...
+[snapshot] loaded engine_state.json
+[engine] started; consuming order_commands group=engine-group consumer=engine-1 events_channel=engine_events

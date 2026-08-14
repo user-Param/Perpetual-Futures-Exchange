@@ -1,0 +1,194 @@
+40905:C 15 Aug 2026 03:22:42.541 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+40905:C 15 Aug 2026 03:22:42.541 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=40905, just started
+40905:C 15 Aug 2026 03:22:42.541 * Configuration loaded
+40905:M 15 Aug 2026 03:22:42.542 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+40905:M 15 Aug 2026 03:22:42.543 # Failed to write PID file: Permission denied
+40905:M 15 Aug 2026 03:22:42.543 * Running mode=standalone, port=6379.
+40905:M 15 Aug 2026 03:22:42.543 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+40905:M 15 Aug 2026 03:22:42.544 * Server initialized
+40905:M 15 Aug 2026 03:22:42.544 * Ready to accept connections tcp
+40905:M 15 Aug 2026 03:22:42.544 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+41782:C 15 Aug 2026 03:25:27.042 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+41782:C 15 Aug 2026 03:25:27.043 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=41782, just started
+41782:C 15 Aug 2026 03:25:27.043 * Configuration loaded
+41782:M 15 Aug 2026 03:25:27.043 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+41782:M 15 Aug 2026 03:25:27.044 # Failed to write PID file: Permission denied
+41782:M 15 Aug 2026 03:25:27.044 * Running mode=standalone, port=6379.
+41782:M 15 Aug 2026 03:25:27.044 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+41782:M 15 Aug 2026 03:25:27.044 * Server initialized
+41782:M 15 Aug 2026 03:25:27.044 * Ready to accept connections tcp
+41782:M 15 Aug 2026 03:25:27.044 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+41782:M 15 Aug 2026 03:32:27.745 * User requested shutdown...
+41782:M 15 Aug 2026 03:32:27.745 * Saving the final RDB snapshot before exiting.
+41782:M 15 Aug 2026 03:32:27.746 * BGSAVE done, 1 keys saved, 0 keys skipped, 180 bytes written.
+41782:M 15 Aug 2026 03:32:27.749 * DB saved on disk
+41782:M 15 Aug 2026 03:32:27.749 * Removing the pid file.
+41782:M 15 Aug 2026 03:32:27.750 # Redis is now ready to exit, bye bye...
+42397:C 15 Aug 2026 03:32:44.122 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42397:C 15 Aug 2026 03:32:44.123 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42397, just started
+42397:C 15 Aug 2026 03:32:44.123 * Configuration loaded
+42397:M 15 Aug 2026 03:32:44.123 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42397:M 15 Aug 2026 03:32:44.124 # Failed to write PID file: Permission denied
+42397:M 15 Aug 2026 03:32:44.124 * Running mode=standalone, port=6379.
+42397:M 15 Aug 2026 03:32:44.124 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42397:M 15 Aug 2026 03:32:44.124 * Server initialized
+42397:M 15 Aug 2026 03:32:44.125 * Loading RDB produced by version 8.10.0
+42397:M 15 Aug 2026 03:32:44.125 * RDB age 17 seconds
+42397:M 15 Aug 2026 03:32:44.125 * RDB memory usage when created 1.05 Mb
+42397:M 15 Aug 2026 03:32:44.125 * Done loading RDB, keys loaded: 1, keys expired: 0.
+42397:M 15 Aug 2026 03:32:44.125 * DB loaded from disk: 0.001 seconds
+42397:M 15 Aug 2026 03:32:44.125 * Ready to accept connections tcp
+42397:M 15 Aug 2026 03:32:44.125 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42397:M 15 Aug 2026 03:34:14.909 * User requested shutdown...
+42397:M 15 Aug 2026 03:34:14.909 * Saving the final RDB snapshot before exiting.
+42397:M 15 Aug 2026 03:34:14.910 * BGSAVE done, 2 keys saved, 0 keys skipped, 6795 bytes written.
+42397:M 15 Aug 2026 03:34:14.914 * DB saved on disk
+42397:M 15 Aug 2026 03:34:14.914 * Removing the pid file.
+42397:M 15 Aug 2026 03:34:14.914 # Redis is now ready to exit, bye bye...
+42511:C 15 Aug 2026 03:34:16.012 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42511:C 15 Aug 2026 03:34:16.012 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42511, just started
+42511:C 15 Aug 2026 03:34:16.012 * Configuration loaded
+42511:M 15 Aug 2026 03:34:16.013 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42511:M 15 Aug 2026 03:34:16.013 # Failed to write PID file: Permission denied
+42511:M 15 Aug 2026 03:34:16.013 * Running mode=standalone, port=6379.
+42511:M 15 Aug 2026 03:34:16.013 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42511:M 15 Aug 2026 03:34:16.013 * Server initialized
+42511:M 15 Aug 2026 03:34:16.013 * Loading RDB produced by version 8.10.0
+42511:M 15 Aug 2026 03:34:16.013 * RDB age 2 seconds
+42511:M 15 Aug 2026 03:34:16.014 * RDB memory usage when created 1.17 Mb
+42511:M 15 Aug 2026 03:34:16.014 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42511:M 15 Aug 2026 03:34:16.014 * DB loaded from disk: 0.001 seconds
+42511:M 15 Aug 2026 03:34:16.014 * Ready to accept connections tcp
+42511:M 15 Aug 2026 03:34:16.014 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42511:M 15 Aug 2026 03:35:13.530 * User requested shutdown...
+42511:M 15 Aug 2026 03:35:13.530 * Saving the final RDB snapshot before exiting.
+42511:M 15 Aug 2026 03:35:13.530 * BGSAVE done, 2 keys saved, 0 keys skipped, 16210 bytes written.
+42511:M 15 Aug 2026 03:35:13.535 * DB saved on disk
+42511:M 15 Aug 2026 03:35:13.535 * Removing the pid file.
+42511:M 15 Aug 2026 03:35:13.535 # Redis is now ready to exit, bye bye...
+42605:C 15 Aug 2026 03:35:14.630 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42605:C 15 Aug 2026 03:35:14.630 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42605, just started
+42605:C 15 Aug 2026 03:35:14.630 * Configuration loaded
+42605:M 15 Aug 2026 03:35:14.630 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42605:M 15 Aug 2026 03:35:14.631 # Failed to write PID file: Permission denied
+42605:M 15 Aug 2026 03:35:14.631 * Running mode=standalone, port=6379.
+42605:M 15 Aug 2026 03:35:14.631 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42605:M 15 Aug 2026 03:35:14.631 * Server initialized
+42605:M 15 Aug 2026 03:35:14.631 * Loading RDB produced by version 8.10.0
+42605:M 15 Aug 2026 03:35:14.631 * RDB age 1 seconds
+42605:M 15 Aug 2026 03:35:14.632 * RDB memory usage when created 1.17 Mb
+42605:M 15 Aug 2026 03:35:14.632 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42605:M 15 Aug 2026 03:35:14.632 * DB loaded from disk: 0.001 seconds
+42605:M 15 Aug 2026 03:35:14.632 * Ready to accept connections tcp
+42605:M 15 Aug 2026 03:35:14.632 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42605:M 15 Aug 2026 03:36:41.926 * User requested shutdown...
+42605:M 15 Aug 2026 03:36:41.926 * Saving the final RDB snapshot before exiting.
+42605:M 15 Aug 2026 03:36:41.927 * BGSAVE done, 2 keys saved, 0 keys skipped, 19296 bytes written.
+42605:M 15 Aug 2026 03:36:41.932 * DB saved on disk
+42605:M 15 Aug 2026 03:36:41.932 * Removing the pid file.
+42605:M 15 Aug 2026 03:36:41.933 # Redis is now ready to exit, bye bye...
+42700:C 15 Aug 2026 03:36:43.019 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42700:C 15 Aug 2026 03:36:43.019 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42700, just started
+42700:C 15 Aug 2026 03:36:43.019 * Configuration loaded
+42700:M 15 Aug 2026 03:36:43.019 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42700:M 15 Aug 2026 03:36:43.020 # Failed to write PID file: Permission denied
+42700:M 15 Aug 2026 03:36:43.020 * Running mode=standalone, port=6379.
+42700:M 15 Aug 2026 03:36:43.020 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42700:M 15 Aug 2026 03:36:43.020 * Server initialized
+42700:M 15 Aug 2026 03:36:43.020 * Loading RDB produced by version 8.10.0
+42700:M 15 Aug 2026 03:36:43.020 * RDB age 2 seconds
+42700:M 15 Aug 2026 03:36:43.020 * RDB memory usage when created 1.18 Mb
+42700:M 15 Aug 2026 03:36:43.021 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42700:M 15 Aug 2026 03:36:43.021 * DB loaded from disk: 0.001 seconds
+42700:M 15 Aug 2026 03:36:43.021 * Ready to accept connections tcp
+42700:M 15 Aug 2026 03:36:43.021 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42700:M 15 Aug 2026 03:36:59.083 * User requested shutdown...
+42700:M 15 Aug 2026 03:36:59.083 * Saving the final RDB snapshot before exiting.
+42700:M 15 Aug 2026 03:36:59.083 * BGSAVE done, 2 keys saved, 0 keys skipped, 22796 bytes written.
+42700:M 15 Aug 2026 03:36:59.087 * DB saved on disk
+42700:M 15 Aug 2026 03:36:59.088 * Removing the pid file.
+42700:M 15 Aug 2026 03:36:59.088 # Redis is now ready to exit, bye bye...
+42784:C 15 Aug 2026 03:37:00.173 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42784:C 15 Aug 2026 03:37:00.173 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42784, just started
+42784:C 15 Aug 2026 03:37:00.173 * Configuration loaded
+42784:M 15 Aug 2026 03:37:00.173 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42784:M 15 Aug 2026 03:37:00.173 # Failed to write PID file: Permission denied
+42784:M 15 Aug 2026 03:37:00.174 * Running mode=standalone, port=6379.
+42784:M 15 Aug 2026 03:37:00.174 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42784:M 15 Aug 2026 03:37:00.174 * Server initialized
+42784:M 15 Aug 2026 03:37:00.174 * Loading RDB produced by version 8.10.0
+42784:M 15 Aug 2026 03:37:00.174 * RDB age 1 seconds
+42784:M 15 Aug 2026 03:37:00.174 * RDB memory usage when created 1.19 Mb
+42784:M 15 Aug 2026 03:37:00.175 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42784:M 15 Aug 2026 03:37:00.175 * DB loaded from disk: 0.001 seconds
+42784:M 15 Aug 2026 03:37:00.175 * Ready to accept connections tcp
+42784:M 15 Aug 2026 03:37:00.175 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42784:M 15 Aug 2026 03:37:16.245 * User requested shutdown...
+42784:M 15 Aug 2026 03:37:16.245 * Saving the final RDB snapshot before exiting.
+42784:M 15 Aug 2026 03:37:16.245 * BGSAVE done, 2 keys saved, 0 keys skipped, 25740 bytes written.
+42784:M 15 Aug 2026 03:37:16.250 * DB saved on disk
+42784:M 15 Aug 2026 03:37:16.250 * Removing the pid file.
+42784:M 15 Aug 2026 03:37:16.250 # Redis is now ready to exit, bye bye...
+42871:C 15 Aug 2026 03:37:17.340 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42871:C 15 Aug 2026 03:37:17.340 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42871, just started
+42871:C 15 Aug 2026 03:37:17.340 * Configuration loaded
+42871:M 15 Aug 2026 03:37:17.341 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42871:M 15 Aug 2026 03:37:17.341 # Failed to write PID file: Permission denied
+42871:M 15 Aug 2026 03:37:17.341 * Running mode=standalone, port=6379.
+42871:M 15 Aug 2026 03:37:17.341 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42871:M 15 Aug 2026 03:37:17.341 * Server initialized
+42871:M 15 Aug 2026 03:37:17.342 * Loading RDB produced by version 8.10.0
+42871:M 15 Aug 2026 03:37:17.342 * RDB age 1 seconds
+42871:M 15 Aug 2026 03:37:17.342 * RDB memory usage when created 1.20 Mb
+42871:M 15 Aug 2026 03:37:17.342 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42871:M 15 Aug 2026 03:37:17.342 * DB loaded from disk: 0.001 seconds
+42871:M 15 Aug 2026 03:37:17.342 * Ready to accept connections tcp
+42871:M 15 Aug 2026 03:37:17.342 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42871:M 15 Aug 2026 03:37:33.156 * User requested shutdown...
+42871:M 15 Aug 2026 03:37:33.156 * Saving the final RDB snapshot before exiting.
+42871:M 15 Aug 2026 03:37:33.156 * BGSAVE done, 2 keys saved, 0 keys skipped, 28775 bytes written.
+42871:M 15 Aug 2026 03:37:33.162 * DB saved on disk
+42871:M 15 Aug 2026 03:37:33.162 * Removing the pid file.
+42871:M 15 Aug 2026 03:37:33.162 # Redis is now ready to exit, bye bye...
+42954:C 15 Aug 2026 03:37:34.251 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+42954:C 15 Aug 2026 03:37:34.251 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=42954, just started
+42954:C 15 Aug 2026 03:37:34.251 * Configuration loaded
+42954:M 15 Aug 2026 03:37:34.252 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+42954:M 15 Aug 2026 03:37:34.252 # Failed to write PID file: Permission denied
+42954:M 15 Aug 2026 03:37:34.252 * Running mode=standalone, port=6379.
+42954:M 15 Aug 2026 03:37:34.252 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+42954:M 15 Aug 2026 03:37:34.252 * Server initialized
+42954:M 15 Aug 2026 03:37:34.252 * Loading RDB produced by version 8.10.0
+42954:M 15 Aug 2026 03:37:34.253 * RDB age 1 seconds
+42954:M 15 Aug 2026 03:37:34.253 * RDB memory usage when created 1.21 Mb
+42954:M 15 Aug 2026 03:37:34.253 * Done loading RDB, keys loaded: 2, keys expired: 0.
+42954:M 15 Aug 2026 03:37:34.253 * DB loaded from disk: 0.001 seconds
+42954:M 15 Aug 2026 03:37:34.253 * Ready to accept connections tcp
+42954:M 15 Aug 2026 03:37:34.253 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+42954:M 15 Aug 2026 03:38:22.409 * User requested shutdown...
+42954:M 15 Aug 2026 03:38:22.409 * Saving the final RDB snapshot before exiting.
+42954:M 15 Aug 2026 03:38:22.409 * BGSAVE done, 2 keys saved, 0 keys skipped, 31908 bytes written.
+42954:M 15 Aug 2026 03:38:22.413 * DB saved on disk
+42954:M 15 Aug 2026 03:38:22.413 * Removing the pid file.
+42954:M 15 Aug 2026 03:38:22.413 # Redis is now ready to exit, bye bye...
+43043:C 15 Aug 2026 03:38:23.503 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+43043:C 15 Aug 2026 03:38:23.504 * Redis version=8.10.0, bits=64, commit=00000000, modified=1, pid=43043, just started
+43043:C 15 Aug 2026 03:38:23.504 * Configuration loaded
+43043:M 15 Aug 2026 03:38:23.504 * monotonic clock: ARM CNTVCT @ 24 ticks/us
+43043:M 15 Aug 2026 03:38:23.504 # Failed to write PID file: Permission denied
+43043:M 15 Aug 2026 03:38:23.504 * Running mode=standalone, port=6379.
+43043:M 15 Aug 2026 03:38:23.504 # WARNING: The TCP backlog setting of 511 cannot be enforced because kern.ipc.somaxconn is set to the lower value of 128.
+43043:M 15 Aug 2026 03:38:23.505 * Server initialized
+43043:M 15 Aug 2026 03:38:23.505 * Loading RDB produced by version 8.10.0
+43043:M 15 Aug 2026 03:38:23.505 * RDB age 1 seconds
+43043:M 15 Aug 2026 03:38:23.505 * RDB memory usage when created 1.22 Mb
+43043:M 15 Aug 2026 03:38:23.506 * Done loading RDB, keys loaded: 2, keys expired: 0.
+43043:M 15 Aug 2026 03:38:23.506 * DB loaded from disk: 0.001 seconds
+43043:M 15 Aug 2026 03:38:23.506 * Ready to accept connections tcp
+43043:M 15 Aug 2026 03:38:23.506 # WARNING: Redis does not require authentication. Redis will accept connections from any local client.
+43043:M 15 Aug 2026 03:43:24.073 * 100 changes in 300 seconds. Saving...
+43043:M 15 Aug 2026 03:43:24.075 * Background saving started by pid 43342
+43342:C 15 Aug 2026 03:43:24.077 * BGSAVE done, 2 keys saved, 0 keys skipped, 38530 bytes written.
+43342:C 15 Aug 2026 03:43:24.081 * DB saved on disk
+43342:C 15 Aug 2026 03:43:24.081 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+43043:M 15 Aug 2026 03:43:24.177 * Background saving terminated with success
