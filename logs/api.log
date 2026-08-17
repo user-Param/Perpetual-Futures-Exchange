@@ -40,3 +40,9 @@ DB Writer subscribed to engine_events
 (node:43189) TimeoutNegativeWarning: -1786745580838 is a negative number.
 Timeout duration was set to 1.
 (Use `node --trace-warnings ...` to show where the warning was created)
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+{"level":"WARN","timestamp":"2026-08-16T02:44:12.248Z","logger":"kafkajs","message":"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \"createPartitioner: Partitioners.LegacyPartitioner\". See the migration guide at https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner for details. Silence this warning by setting the environment variable \"KAFKAJS_NO_PARTITIONER_WARNING=1\""}
+(node:16474) TimeoutNegativeWarning: -1786848252254 is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
