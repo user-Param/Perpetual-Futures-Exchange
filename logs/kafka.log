@@ -9555,3 +9555,7 @@ WARNING: sun.misc.Unsafe::invokeCleaner will be removed in a future release
 [2026-08-17 15:16:51,840] INFO [SnapshotEmitter id=1] Successfully wrote snapshot 00000000000000163579-0000000004 (org.apache.kafka.image.publisher.SnapshotEmitter)
 [2026-08-17 16:16:52,124] INFO [SnapshotGenerator id=1] Creating new KRaft snapshot file snapshot 00000000000000170723-0000000004 because we have waited at least 60 minute(s). (org.apache.kafka.image.publisher.SnapshotGenerator)
 [2026-08-17 16:16:52,144] INFO [SnapshotEmitter id=1] Successfully wrote snapshot 00000000000000170723-0000000004 (org.apache.kafka.image.publisher.SnapshotEmitter)
+[2026-08-17 18:14:10,640] INFO [SnapshotGenerator id=1] Creating new KRaft snapshot file snapshot 00000000000000177852-0000000004 because we have waited at least 60 minute(s). (org.apache.kafka.image.publisher.SnapshotGenerator)
+[2026-08-17 18:14:10,663] INFO [SnapshotEmitter id=1] Successfully wrote snapshot 00000000000000177852-0000000004 (org.apache.kafka.image.publisher.SnapshotEmitter)
+[2026-08-17 19:14:11,030] INFO [SnapshotGenerator id=1] Creating new KRaft snapshot file snapshot 00000000000000184973-0000000004 because we have waited at least 60 minute(s). (org.apache.kafka.image.publisher.SnapshotGenerator)
+[2026-08-17 19:14:11,048] INFO [SnapshotEmitter id=1] Successfully wrote snapshot 00000000000000184973-0000000004 (org.apache.kafka.image.publisher.SnapshotEmitter)
