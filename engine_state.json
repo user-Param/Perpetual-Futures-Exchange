@@ -1,1 +1,1 @@
-{"books":[{"asks":[],"bids":[],"market":"BTC-USDT-PERP"}]}
+{"books":[{"asks":[],"bids":[{"clientOrderId":"","filled":"0","id":"63308972-ba86-485e-81a2-3c49f89eec4d","leverage":"10","marginMode":"isolated","postOnly":false,"price":"21000","quantity":"0.01","reduceOnly":false,"side":"buy","tif":"GTC","timestamp":1786745314026,"type":"limit","userId":"a39562cf-3a1d-4dfe-a2e2-cedd144e2a62"}],"market":"BTC-USDT-PERP"}]}

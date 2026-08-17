@@ -1,0 +1,19 @@
+[1;34m[+] Starting Exchange stack from /Users/param/Documents/Projects/Exchange[0m
+[1;32m[*] PostgreSQL is running[0m
+[1;34m[+] Starting Redis[0m
+[1;32m[*] Redis started[0m
+[1;34m[+] Starting Kafka[0m
+[1;32m[*] Kafka started[0m
+[1;34m[+] Starting engine[0m
+[1;32m[*] Engine started[0m
+[1;34m[+] Starting API server[0m
+[1;32m[*] API server started[0m
+
+[1;32mExchange stack is up.[0m
+  PostgreSQL : http://localhost:5432  (db: exchange)
+  Redis      : localhost:6379
+  Kafka      : localhost:9092
+  Engine     : logs/engine.log
+  API        : http://localhost:3000  (health: /health)
+  Logs       : /Users/param/Documents/Projects/Exchange/logs
+[1;34m[+] Press Ctrl+C to stop the exchange.[0m
