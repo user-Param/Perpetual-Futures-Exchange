@@ -155,6 +155,9 @@ summary() {
   printf "  Logs       : %s\n" "$LOG_DIR"
 }
 
+
+
+
 cleanup() {
   info "Shutting down Exchange stack..."
   pkill -f '[E]ngine/build/engine' 2>/dev/null && ok "Engine stopped" || true
@@ -176,6 +179,7 @@ main() {
   start_engine
   start_api
   summary
+  cd terminal && npm run dev
 
   trap cleanup INT TERM
   info "Press Ctrl+C to stop the exchange."

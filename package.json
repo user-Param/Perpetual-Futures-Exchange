@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "drizzle-orm": "^0.45.2",
+    "g": "^2.0.1",
     "kafka": "^0.2.3",
     "react-icons": "^5.7.0",
     "redis": "^6.2.1",
     "repomix": "^1.18.0",
-    "turbo": "^2.10.9"
+    "turbo": "^2.10.9",
+    "wscat": "^6.1.0"
   }
 }
