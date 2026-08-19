@@ -46,3 +46,289 @@ DB Writer subscribed to engine_events
 (node:16474) TimeoutNegativeWarning: -1786848252254 is a negative number.
 Timeout duration was set to 1.
 (Use `node --trace-warnings ...` to show where the warning was created)
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+(node:49322) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DB Writer subscribed to engine_events
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+API listening on http://localhost:3000
+(node:49539) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+DB Writer subscribed to engine_events
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+outbox worker error: Failed query: select "id", "event_type", "aggregate_id", "payload", "created_at", "published_at" from "outbox" where "outbox"."published_at" is null limit $1
+params: 100
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+{"level":"WARN","timestamp":"2026-08-18T13:52:48.003Z","logger":"kafkajs","message":"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \"createPartitioner: Partitioners.LegacyPartitioner\". See the migration guide at https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner for details. Silence this warning by setting the environment variable \"KAFKAJS_NO_PARTITIONER_WARNING=1\""}
+(node:70259) TimeoutNegativeWarning: -1787061168018 is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+{"level":"WARN","timestamp":"2026-08-18T18:15:39.393Z","logger":"kafkajs","message":"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \"createPartitioner: Partitioners.LegacyPartitioner\". See the migration guide at https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner for details. Silence this warning by setting the environment variable \"KAFKAJS_NO_PARTITIONER_WARNING=1\""}
+(node:81923) TimeoutNegativeWarning: -1787076939404 is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+{"level":"WARN","timestamp":"2026-08-19T19:20:58.194Z","logger":"kafkajs","message":"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \"createPartitioner: Partitioners.LegacyPartitioner\". See the migration guide at https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner for details. Silence this warning by setting the environment variable \"KAFKAJS_NO_PARTITIONER_WARNING=1\""}
+(node:11224) TimeoutNegativeWarning: -1787167258211 is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
+db writer error: Failed query: update "positions" set "quantity" = $1, "mark_price" = $2, "realized_pnl" = $3, "status" = $4, "closed_at" = $5 where "positions"."id" = $6
+params: 0,5000,--384.743922803,closed,2026-08-19T19:55:06.296Z,be406786-8c1c-4093-aef7-dbe5888bcd53
