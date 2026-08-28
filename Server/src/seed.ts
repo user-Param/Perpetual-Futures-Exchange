@@ -61,7 +61,7 @@ async function main() {
   await upsertAsset("BTC", "Bitcoin", "crypto", 8);
   await upsertAsset("ETH", "Ethereum", "crypto", 8);
   await upsertAsset("USD", "US Dollar", "fiat", 2);
-   await upsertAsset("SOL", "Solana", "crypto", 8);
+  await upsertAsset("SOL", "Solana", "crypto", 8);
   await upsertAsset("XRP", "Ripple", "crypto", 8);
   await upsertAsset("ADA", "Cardano", "crypto", 8);
   await upsertAsset("DOGE", "Dogecoin", "crypto", 8);
