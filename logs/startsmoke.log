@@ -17,3 +17,4 @@
   API        : http://localhost:3000  (health: /health)
   Logs       : /Users/param/Documents/Projects/Exchange/logs
 [1;34m[+] Press Ctrl+C to stop the exchange.[0m
+./start.sh: line 184: 15899 Killed: 9               nohup kafka-server-start "$config" >> "$LOG_DIR/kafka.log" 2>&1

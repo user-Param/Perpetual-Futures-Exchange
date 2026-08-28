@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { BotWorker } from './botWorker.js';
 
 async function main() {
-  console.log('🚀 Launching trading bots...');
+  console.log('Launching trading bots...');
 
   const bots: BotWorker[] = [];
   for (let i = 1; i <= CONFIG.BOT_COUNT; i++) {
@@ -16,7 +16,7 @@ async function main() {
     });
   }
 
-  console.log(`✅ ${bots.length} bots are running. Press Ctrl+C to stop.`);
+  console.log(`${bots.length} bots are running. Press Ctrl+C to stop.`);
 
   // Keep the main process alive
   process.on('SIGINT', () => {

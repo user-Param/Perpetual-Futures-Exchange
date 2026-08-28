@@ -30,7 +30,7 @@ export const CONFIG = {
   // Password for all bot accounts (auto‑registered)
   BOT_PASSWORD: 'SimBot123!',
   // How often each bot runs its strategies (ms)
-  LOOP_INTERVAL: 1000, // 1 second = constant new trades
+  LOOP_INTERVAL: 10, // 1 second = constant new trades
   // Maximum open orders per bot per market (to avoid overcrowding)
-  MAX_OPEN_ORDERS: 5,
+  MAX_OPEN_ORDERS: 5000,
 };
