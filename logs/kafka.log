@@ -60985,3 +60985,8 @@ WARNING: sun.misc.Unsafe::invokeCleaner will be removed in a future release
 [2026-08-30 02:37:13,992] INFO [RaftLog partition=__cluster_metadata-0, nodeId=1] Marking snapshot OffsetAndEpoch[offset=748352, epoch=4] for deletion because its timestamp (1787432776360) is now (1788037633981) older than the retention (604800000) (org.apache.kafka.raft.internals.KafkaRaftLog)
 [2026-08-30 02:38:14,000] INFO Deleted snapshot files for snapshot OffsetAndEpoch[offset=748352, epoch=4]. (org.apache.kafka.snapshot.Snapshots)
 [2026-08-30 02:43:14,436] INFO [NodeToControllerChannelManager id=1 name=registration] Node 1 disconnected. (org.apache.kafka.clients.NetworkClient)
+[2026-08-30 03:34:38,059] INFO [SnapshotGenerator id=1] Creating new KRaft snapshot file snapshot 00000000000001038346-0000000019 because we have waited at least 60 minute(s). (org.apache.kafka.image.publisher.SnapshotGenerator)
+[2026-08-30 03:34:38,112] INFO [SnapshotEmitter id=1] Successfully wrote snapshot 00000000000001038346-0000000019 (org.apache.kafka.image.publisher.SnapshotEmitter)
+[2026-08-30 03:36:29,335] INFO [UnifiedLog partition=__cluster_metadata-0, dir=/opt/homebrew/var/lib/kraft-combined-logs] Incremented log start offset to 762602 due to snapshot generated (org.apache.kafka.storage.internals.log.UnifiedLog)
+[2026-08-30 03:36:29,345] INFO [RaftLog partition=__cluster_metadata-0, nodeId=1] Marking snapshot OffsetAndEpoch[offset=755471, epoch=4] for deletion because its timestamp (1787436376479) is now (1788041189333) older than the retention (604800000) (org.apache.kafka.raft.internals.KafkaRaftLog)
+[2026-08-30 03:37:29,359] INFO Deleted snapshot files for snapshot OffsetAndEpoch[offset=755471, epoch=4]. (org.apache.kafka.snapshot.Snapshots)
