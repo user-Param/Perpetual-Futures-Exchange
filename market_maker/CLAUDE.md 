@@ -1,0 +1,2546 @@
+# CLAUDE.md — Market Maker Service
+
+## 1. ROLE OF THIS DOCUMENT
+
+You are working inside the existing **Perpetual Futures Exchange** project.
+
+Your task is to build a small, reliable, production-oriented **Market Maker Service** inside the `market_maker/` directory.
+
+This service exists for one primary purpose:
+
+> Continuously provide simulated liquidity to the exchange by observing real-time market prices from Binance and placing/maintaining buy and sell orders on our own exchange around that external reference price.
+
+This is **not** intended to be a sophisticated trading system, quantitative trading platform, arbitrage engine, portfolio manager, or high-frequency trading infrastructure.
+
+The objective is to build the **smallest practical service that continuously keeps our exchange's order book populated with realistic bid/ask liquidity**, while being resilient enough to run continuously in production.
+
+---
+
+# 2. ABSOLUTE FILE-SYSTEM AND WRITE-PERMISSION RULE
+
+## THIS RULE IS NON-NEGOTIABLE
+
+The repository contains an existing exchange application.
+
+The new market maker must live exclusively inside:
+
+```text
+market_maker/
+```
+
+You may:
+
+* Read any file in the entire repository.
+* Inspect the entire exchange architecture.
+* Inspect existing API routes.
+* Inspect existing authentication.
+* Inspect existing database schemas.
+* Inspect existing order models.
+* Inspect existing controllers/services.
+* Inspect existing matching-engine behavior.
+* Inspect existing Docker configuration.
+* Inspect existing environment configuration.
+* Inspect existing tests.
+* Inspect existing documentation.
+
+However:
+
+> **YOU MAY ONLY CREATE, MODIFY, DELETE, OR OTHERWISE WRITE FILES INSIDE `market_maker/`.**
+
+You MUST NOT modify anything outside `market_maker/`.
+
+You MUST NOT:
+
+* modify the existing API
+* modify the C++ matching engine
+* modify PostgreSQL schemas
+* modify Redis configuration
+* modify Kafka configuration
+* modify frontend code
+* modify existing exchange services
+* modify existing authentication
+* modify existing order logic
+* modify existing Docker Compose files
+* modify root package files
+* modify workspace configuration
+* modify existing `.env` files
+* create helper scripts outside `market_maker/`
+* create temporary files outside `market_maker/`
+* "fix" unrelated exchange code
+* refactor unrelated exchange code
+* move existing files
+* rename existing files
+* delete existing files
+
+If something outside `market_maker/` appears broken or incompatible, DO NOT fix it automatically.
+
+Instead:
+
+1. Investigate it.
+2. Determine exactly what the market maker needs.
+3. Implement the required compatibility logic inside `market_maker/` if possible.
+4. If it genuinely cannot be solved without modifying another directory, STOP and clearly report the required change instead of making it.
+
+The existing exchange is the source of truth.
+
+---
+
+# 3. FIRST STEP: UNDERSTAND THE EXISTING EXCHANGE
+
+Before writing code, inspect the existing repository.
+
+Do not assume the exchange API works in a particular way.
+
+Do not hallucinate endpoints.
+
+Do not invent authentication flows.
+
+Do not invent request bodies.
+
+Do not invent response formats.
+
+Read the existing implementation.
+
+Specifically inspect:
+
+```text
+server/
+engine/
+packages/
+```
+
+and any other relevant existing directories.
+
+Determine:
+
+1. How users authenticate.
+2. How the bot can authenticate.
+3. How users receive/deposit simulated funds.
+4. How balances are represented.
+5. How markets are represented.
+6. How market symbols are represented.
+7. How orders are created.
+8. How orders are cancelled.
+9. How open orders are queried.
+10. How order status is returned.
+11. How positions are queried.
+12. How fills are represented.
+13. How tick size works.
+14. How step size works.
+15. Minimum order size.
+16. Maximum order size.
+17. Existing API base URL.
+18. Existing API error format.
+19. Existing authentication mechanism.
+20. Existing order lifecycle.
+21. Whether the API requires UUID user IDs.
+22. Whether the API requires client order IDs.
+23. Whether the API supports idempotency.
+24. How market status is determined.
+25. How balances are updated.
+26. How orders reach the matching engine.
+
+The existing exchange architecture should be treated as authoritative.
+
+The documented exchange architecture uses an Express/TypeScript API, PostgreSQL, Redis, Kafka, and a standalone C++ matching engine. Orders ultimately travel through the exchange's normal order pipeline and the matching engine is responsible for matching orders. Do not bypass this architecture.
+
+---
+
+# 4. PROJECT OBJECTIVE
+
+The Market Maker Service should provide liquidity to one or more exchange markets.
+
+Example:
+
+```text
+External reference:
+
+Binance BTC/USDT
+        ↓
+     $100,000
+```
+
+The bot calculates:
+
+```text
+Bid: $99,950
+Ask: $100,050
+```
+
+and places:
+
+```text
+BUY  BTC-USDT-PERP
+0.001 BTC @ 99,950
+
+SELL BTC-USDT-PERP
+0.001 BTC @ 100,050
+```
+
+If Binance moves:
+
+```text
+$100,000 → $100,100
+```
+
+the bot should update its quotes:
+
+```text
+BUY  @ $100,050
+SELL @ $100,150
+```
+
+The exact spread, quantity, refresh interval, and market should be configuration-driven.
+
+---
+
+# 5. CORE PRINCIPLE
+
+The bot is a **liquidity provider**, not a trading simulator that blindly executes:
+
+```text
+BUY
+SELL
+BUY
+SELL
+BUY
+SELL
+```
+
+Do NOT implement a naive loop that randomly buys and sells.
+
+Instead, the bot should continuously maintain:
+
+```text
+        External Price
+             │
+             ▼
+       Quote Calculation
+          /        \
+         /          \
+        ▼            ▼
+      BID            ASK
+```
+
+The purpose is to keep resting liquidity on both sides of the exchange order book.
+
+Users trading against the exchange can then consume those orders.
+
+This creates realistic exchange activity.
+
+---
+
+# 6. TECHNOLOGY REQUIREMENTS
+
+Use:
+
+* Node.js
+* TypeScript
+* Express.js
+* WebSocket client for Binance
+* HTTP client for exchange API
+* npm
+
+Use strict TypeScript.
+
+Recommended:
+
+```text
+TypeScript strict mode
+ES2022 or compatible modern target
+```
+
+Keep dependencies minimal.
+
+Do not introduce unnecessary infrastructure.
+
+The bot does NOT need:
+
+* PostgreSQL
+* Kafka
+* Redis
+* ORM
+* message broker
+* separate database
+* event sourcing
+* persistent price storage
+* analytics database
+
+The exchange already provides those systems.
+
+---
+
+# 7. HIGH-LEVEL ARCHITECTURE
+
+The service should have the following logical components:
+
+```text
+                         Binance
+                            │
+                            │ WebSocket
+                            ▼
+                 ┌─────────────────────┐
+                 │    Binance Feed     │
+                 │                     │
+                 │ Current Price       │
+                 │ Last Update Time    │
+                 │ Connection State    │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │   Quote Strategy   │
+                 │                     │
+                 │ Reference Price     │
+                 │ Spread              │
+                 │ Quantity            │
+                 │ Tick Size           │
+                 │ Step Size           │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │    Order Manager    │
+                 │                     │
+                 │ Active Bid          │
+                 │ Active Ask          │
+                 │ Reconciliation      │
+                 │ Cancel/Replace      │
+                 └──────────┬──────────┘
+                            │
+                            │ HTTP
+                            ▼
+                 ┌─────────────────────┐
+                 │   Exchange Client   │
+                 │                     │
+                 │ Authentication      │
+                 │ Place Order         │
+                 │ Cancel Order        │
+                 │ Open Orders         │
+                 │ Balances            │
+                 │ Position            │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                 ┌─────────────────────┐
+                 │   Exchange REST API │
+                 └──────────┬──────────┘
+                            │
+                            ▼
+                       Redis / Engine
+                            │
+                            ▼
+                   C++ Matching Engine
+                            │
+                            ▼
+                       Order Book
+```
+
+The bot itself remains stateless with respect to long-term persistence.
+
+It may maintain **ephemeral in-memory runtime state** such as:
+
+* current Binance price
+* timestamp of latest Binance update
+* active bid order ID
+* active ask order ID
+* current bot position
+* connection status
+* retry state
+
+This state does not need to be persisted to a database.
+
+---
+
+# 8. RECOMMENDED DIRECTORY STRUCTURE
+
+Create the following structure inside `market_maker/`:
+
+```text
+market_maker/
+├── CLAUDE.md
+├── package.json
+├── tsconfig.json
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── README.md
+│
+└── src/
+    ├── index.ts
+    ├── config.ts
+    │
+    ├── market/
+    │   ├── binanceFeed.ts
+    │   └── priceState.ts
+    │
+    ├── strategy/
+    │   └── marketMaker.ts
+    │
+    ├── exchange/
+    │   ├── exchangeClient.ts
+    │   └── exchangeTypes.ts
+    │
+    ├── orders/
+    │   └── orderManager.ts
+    │
+    ├── risk/
+    │   └── riskManager.ts
+    │
+    └── health/
+        └── healthServer.ts
+```
+
+Do not create unnecessary files.
+
+If an existing exchange implementation provides a clear reason for a slightly different structure, use the existing conventions where possible, but never write outside `market_maker/`.
+
+---
+
+# 9. `src/index.ts`
+
+This is the application entry point.
+
+Responsibilities:
+
+1. Load configuration.
+2. Initialize Binance feed.
+3. Initialize exchange client.
+4. Initialize quote strategy.
+5. Initialize order manager.
+6. Initialize risk manager.
+7. Start health server.
+8. Start the market-making loop.
+9. Register graceful shutdown handlers.
+
+Conceptually:
+
+```text
+start
+ │
+ ├── load configuration
+ │
+ ├── validate configuration
+ │
+ ├── connect Binance
+ │
+ ├── initialize exchange client
+ │
+ ├── initialize components
+ │
+ ├── start health server
+ │
+ └── start quote loop
+```
+
+Keep `index.ts` as orchestration only.
+
+Do not put strategy logic here.
+
+---
+
+# 10. `src/config.ts`
+
+All runtime configuration must be centralized.
+
+Example configuration:
+
+```env
+EXCHANGE_API_URL=http://localhost:3000
+
+BOT_EMAIL=market-maker@example.com
+BOT_PASSWORD=...
+
+MARKET=BTC-USDT-PERP
+
+BINANCE_SYMBOL=btcusdt
+
+SPREAD_BPS=10
+
+ORDER_SIZE=0.001
+
+QUOTE_REFRESH_MS=1000
+
+PRICE_STALE_MS=3000
+
+MAX_POSITION=0.1
+
+MAX_ORDER_SIZE=0.01
+
+HEALTH_PORT=3001
+```
+
+Configuration must be validated when the application starts.
+
+If a required configuration value is missing or invalid:
+
+```text
+FAIL FAST
+```
+
+Do not start an unsafe bot with undefined configuration.
+
+Never log:
+
+* passwords
+* API secrets
+* JWTs
+* authentication tokens
+
+---
+
+# 11. BINANCE MARKET DATA
+
+Create:
+
+```text
+src/market/binanceFeed.ts
+```
+
+This component connects to Binance's public WebSocket market-data feed.
+
+The exact Binance stream and message format must be verified from the current Binance API documentation or existing compatible implementation before coding.
+
+Do not hallucinate the WebSocket URL or message schema.
+
+The feed should provide the rest of the application with:
+
+```typescript
+interface PriceState {
+    price: number;
+    timestamp: number;
+    connected: boolean;
+}
+```
+
+or an equivalent strongly typed representation.
+
+---
+
+# 12. NO PRICE PERSISTENCE
+
+The bot must NOT store Binance market prices in:
+
+* PostgreSQL
+* Redis
+* Kafka
+* files
+* JSON files
+* local databases
+* external databases
+
+The price is runtime information only.
+
+The bot only needs:
+
+```text
+latest price
+latest timestamp
+connection status
+```
+
+When a new Binance price arrives:
+
+```text
+replace old price
+```
+
+Do not build historical price storage.
+
+Do not build candles.
+
+Do not build OHLCV.
+
+Do not build analytics.
+
+Do not build technical indicators.
+
+---
+
+# 13. PRICE VALIDATION
+
+Never calculate quotes from an invalid price.
+
+Reject/ignore a Binance update if:
+
+* price is missing
+* price cannot be parsed
+* price <= 0
+* timestamp is invalid
+* data is clearly malformed
+
+Never place an order using:
+
+```text
+0
+NaN
+Infinity
+undefined
+null
+stale price
+```
+
+---
+
+# 14. STALE PRICE PROTECTION
+
+This is mandatory.
+
+Maintain:
+
+```text
+lastPriceUpdateTimestamp
+```
+
+If:
+
+```text
+currentTime - lastPriceUpdateTimestamp > PRICE_STALE_MS
+```
+
+the bot must immediately enter:
+
+```text
+QUOTING PAUSED
+```
+
+state.
+
+While price data is stale:
+
+* DO NOT place new orders.
+* DO NOT update quotes using stale data.
+* Preferably cancel active market-making orders to avoid stale liquidity.
+* Attempt to reconnect to Binance.
+* Resume only after a fresh valid price is received.
+
+Expected lifecycle:
+
+```text
+Binance connected
+      ↓
+Fresh price
+      ↓
+QUOTING
+      ↓
+WebSocket disconnected
+      ↓
+PRICE STALE
+      ↓
+CANCEL ACTIVE QUOTES
+      ↓
+RECONNECT
+      ↓
+Fresh price received
+      ↓
+QUOTING RESUMED
+```
+
+---
+
+# 15. BINANCE RECONNECTION
+
+The Binance WebSocket must automatically reconnect.
+
+Use exponential backoff.
+
+Example:
+
+```text
+1 second
+2 seconds
+4 seconds
+8 seconds
+16 seconds
+30 seconds
+30 seconds
+...
+```
+
+Do not create an infinite rapid reconnect loop.
+
+On successful reconnection:
+
+```text
+reset retry counter
+```
+
+The service itself must remain alive even if Binance is temporarily unavailable.
+
+A temporary external dependency failure must not crash the process.
+
+---
+
+# 16. QUOTE STRATEGY
+
+Create:
+
+```text
+src/strategy/marketMaker.ts
+```
+
+The strategy should remain intentionally simple.
+
+Inputs:
+
+```text
+reference price
+spread
+order quantity
+tick size
+step size
+```
+
+Output:
+
+```text
+desired bid
+desired ask
+quantity
+```
+
+For example:
+
+```text
+Reference:
+100,000
+
+Spread:
+0.10%
+
+Bid:
+99,950
+
+Ask:
+100,050
+```
+
+The strategy should be deterministic.
+
+Given the same inputs, it should produce the same quotes.
+
+---
+
+# 17. SPREAD
+
+Use configuration:
+
+```env
+SPREAD_BPS=10
+```
+
+Interpret this correctly as basis points.
+
+Do not hardcode:
+
+```text
+0.1%
+```
+
+inside multiple places.
+
+The strategy should calculate:
+
+```text
+bid = reference price - spread
+ask = reference price + spread
+```
+
+The exact mathematical implementation should be written clearly and tested.
+
+---
+
+# 18. TICK-SIZE ROUNDING
+
+The exchange market defines:
+
+```text
+tick_size
+step_size
+min_order_size
+max_order_size
+```
+
+The bot MUST respect these constraints.
+
+Before submitting an order:
+
+```text
+calculate price
+      ↓
+round to tick size
+      ↓
+validate
+      ↓
+calculate quantity
+      ↓
+round to step size
+      ↓
+validate
+      ↓
+submit
+```
+
+Never send arbitrary floating-point precision to the exchange.
+
+Prefer decimal-safe arithmetic.
+
+Avoid relying on naive JavaScript floating-point calculations for financial values when precision matters.
+
+If the existing exchange API represents financial values as strings, preserve that convention.
+
+---
+
+# 19. QUANTITY
+
+For the MVP, use a fixed configured quantity:
+
+```env
+ORDER_SIZE=0.001
+```
+
+Do not implement sophisticated dynamic sizing.
+
+However, validate the quantity against:
+
+```text
+min_order_size
+max_order_size
+step_size
+```
+
+If the configured quantity is invalid:
+
+```text
+fail startup
+```
+
+or refuse to quote that market.
+
+Do not continuously send rejected orders.
+
+---
+
+# 20. ORDER MANAGER
+
+Create:
+
+```text
+src/orders/orderManager.ts
+```
+
+The order manager is responsible for maintaining the desired bid and ask.
+
+Runtime state can look like:
+
+```typescript
+interface ActiveOrders {
+    bid?: {
+        id: string;
+        price: string;
+        quantity: string;
+    };
+
+    ask?: {
+        id: string;
+        price: string;
+        quantity: string;
+    };
+}
+```
+
+This state is ephemeral.
+
+---
+
+# 21. BASIC ORDER MANAGEMENT
+
+At any point, the bot ideally maintains:
+
+```text
+ONE BID
+ONE ASK
+```
+
+for the configured market.
+
+Do not create hundreds of orders.
+
+Do not create duplicate quotes.
+
+Do not continuously place new orders without cancelling/reconciling old ones.
+
+---
+
+# 22. QUOTE REFRESH LOOP
+
+The bot should have a controlled quote refresh interval.
+
+Example:
+
+```env
+QUOTE_REFRESH_MS=1000
+```
+
+This does NOT mean Binance price is sampled only once per second.
+
+Binance can update continuously.
+
+Instead:
+
+```text
+Binance WebSocket
+       │
+       ▼
+latestPrice
+       │
+       ▼
+quote refresh loop
+       │
+       ▼
+calculate desired quotes
+       │
+       ▼
+compare against active orders
+```
+
+This prevents excessive API requests.
+
+Do not create an order operation for every market-data tick.
+
+---
+
+# 23. QUOTE REPLACEMENT
+
+Suppose the current orders are:
+
+```text
+BUY  @ 99,950
+SELL @ 100,050
+```
+
+New desired quotes:
+
+```text
+BUY  @ 100,000
+SELL @ 100,100
+```
+
+The order manager should determine that the existing orders are no longer appropriate.
+
+Then:
+
+```text
+cancel old bid
+cancel old ask
+place new bid
+place new ask
+```
+
+However, implement this carefully.
+
+Avoid unnecessary cancellation if the desired price and quantity are effectively unchanged.
+
+---
+
+# 24. MINIMUM-CHANGE PRINCIPLE
+
+The bot should not touch orders unless necessary.
+
+If:
+
+```text
+current bid = desired bid
+current ask = desired ask
+```
+
+do nothing.
+
+If only the bid changed:
+
+```text
+cancel/replace bid
+```
+
+without unnecessarily replacing the ask.
+
+This reduces:
+
+* API traffic
+* exchange load
+* rate-limit risk
+* unnecessary order churn
+
+---
+
+# 25. ORDER IDENTIFICATION
+
+Use client order IDs if the exchange API supports them.
+
+Client order IDs should be:
+
+* unique
+* deterministic enough for debugging
+* generated safely
+* associated with the bot
+
+Example conceptual format:
+
+```text
+MM-BTC-BID-<unique-id>
+MM-BTC-ASK-<unique-id>
+```
+
+Do not assume the exchange accepts a particular format until the existing API implementation is inspected.
+
+---
+
+# 26. IDEMPOTENCY
+
+The bot must protect against duplicate order creation.
+
+If a request times out, do NOT blindly assume the order failed.
+
+Possible situation:
+
+```text
+Bot → Exchange
+       │
+       │ order created
+       ▼
+Exchange
+       X
+network response lost
+       │
+       ▼
+Bot sees timeout
+```
+
+If the bot blindly retries:
+
+```text
+order A created
+order B created
+```
+
+you may accidentally create duplicate liquidity.
+
+The order manager should reconcile with the exchange's actual open-order state before blindly retrying ambiguous order creation.
+
+Use the exchange's existing idempotency/client-order-ID mechanism if available.
+
+---
+
+# 27. EXCHANGE CLIENT
+
+Create:
+
+```text
+src/exchange/exchangeClient.ts
+```
+
+This should be the ONLY component that knows how to communicate with the exchange REST API.
+
+The strategy must not make HTTP requests.
+
+The Binance feed must not make exchange requests.
+
+The order manager should call methods on `ExchangeClient`.
+
+Example interface:
+
+```typescript
+class ExchangeClient {
+    authenticate(): Promise<void>;
+
+    getMarket(symbol: string): Promise<Market>;
+
+    getOpenOrders(symbol: string): Promise<Order[]>;
+
+    placeLimitOrder(params: PlaceOrderParams): Promise<Order>;
+
+    cancelOrder(orderId: string): Promise<void>;
+
+    cancelAllOrders(symbol: string): Promise<void>;
+
+    getBalances(): Promise<Balance[]>;
+
+    getPosition(symbol: string): Promise<Position | null>;
+}
+```
+
+The exact methods and endpoint paths MUST be based on the actual exchange implementation.
+
+Do not invent them.
+
+---
+
+# 28. AUTHENTICATION
+
+The market maker should use a dedicated exchange account.
+
+Prefer:
+
+```text
+Market Maker User
+```
+
+with sufficient simulated funds.
+
+The bot should use the same legitimate exchange API flow as a normal client wherever possible.
+
+Do not modify the exchange to create a secret bypass.
+
+Do not insert orders directly into:
+
+* PostgreSQL
+* Redis
+* C++
+* Kafka
+
+The bot should place orders through the existing exchange API.
+
+---
+
+# 29. FUNDING / ADDING SIMULATED FUNDS
+
+The bot may need initial balances.
+
+Inspect the existing exchange implementation to determine how deposits or simulated balances work.
+
+If an existing API supports simulated deposits, expose the corresponding operation through:
+
+```text
+ExchangeClient
+```
+
+and use it only during explicit initialization/setup if necessary.
+
+Do not continuously add funds.
+
+Do not artificially increase funds every trading cycle.
+
+Do not hide losses by repeatedly minting money.
+
+For example:
+
+```text
+INITIALIZATION
+     ↓
+ensure bot has required simulated balance
+     ↓
+start market making
+```
+
+The exact implementation must follow the existing exchange API.
+
+---
+
+# 30. INVENTORY / POSITION PROTECTION
+
+Even though this is a minimal market maker, it must not accumulate unlimited exposure.
+
+Maintain a configured limit:
+
+```env
+MAX_POSITION=0.1
+```
+
+Before placing new orders, inspect the current position if necessary.
+
+Basic behavior:
+
+```text
+Position too long
+      ↓
+reduce/disable additional BUY liquidity
+      ↓
+continue SELL liquidity
+```
+
+and:
+
+```text
+Position too short
+      ↓
+reduce/disable additional SELL liquidity
+      ↓
+continue BUY liquidity
+```
+
+For the first version, do not build an advanced inventory optimization algorithm.
+
+A simple hard limit is sufficient.
+
+---
+
+# 31. ABSOLUTE POSITION SAFETY
+
+If:
+
+```text
+abs(position) >= MAX_POSITION
+```
+
+the bot MUST NOT continue increasing exposure in that direction.
+
+It may:
+
+* stop quoting that side
+* quote only the reducing side
+* cancel orders that would increase exposure
+
+The exact implementation should be simple and deterministic.
+
+---
+
+# 32. EXCHANGE FAILURE HANDLING
+
+The exchange API may fail.
+
+Examples:
+
+```text
+connection refused
+timeout
+500
+502
+503
+429
+network error
+```
+
+Do not crash the process.
+
+Handle recoverable errors.
+
+Use bounded exponential backoff.
+
+Do not hammer a failing exchange.
+
+Example:
+
+```text
+request failed
+     ↓
+classify error
+     ↓
+retry if safe
+     ↓
+backoff
+     ↓
+reconcile
+     ↓
+continue
+```
+
+---
+
+# 33. RATE LIMIT PROTECTION
+
+Never create an uncontrolled request loop.
+
+The bot must have explicit control over:
+
+* quote refresh frequency
+* retry frequency
+* cancellation frequency
+* order placement frequency
+
+Do not allow a Binance WebSocket burst to produce an equivalent burst of REST calls.
+
+A simple quote scheduler is preferred.
+
+---
+
+# 34. DO NOT OVER-OPTIMIZE FOR HFT
+
+This is not a real high-frequency trading system.
+
+Do not introduce:
+
+* native C++
+* kernel bypass
+* shared memory
+* FIX
+* FPGA
+* nanosecond timing
+* lock-free queues
+* custom network stacks
+
+The goal is realistic simulated liquidity.
+
+A controlled refresh interval is more important than microsecond latency.
+
+---
+
+# 35. STATE MACHINE
+
+Implement an explicit conceptual runtime state.
+
+Possible states:
+
+```text
+STARTING
+CONNECTING
+READY
+QUOTING
+PAUSED
+RECONNECTING
+STOPPING
+STOPPED
+```
+
+Example:
+
+```text
+STARTING
+   ↓
+CONNECTING
+   ↓
+READY
+   ↓
+QUOTING
+```
+
+If Binance disconnects:
+
+```text
+QUOTING
+   ↓
+PAUSED
+   ↓
+RECONNECTING
+```
+
+After fresh price:
+
+```text
+RECONNECTING
+   ↓
+READY
+   ↓
+QUOTING
+```
+
+If the process receives SIGTERM:
+
+```text
+QUOTING
+   ↓
+STOPPING
+   ↓
+STOPPED
+```
+
+Do not make the implementation unnecessarily complicated, but preserve these safety semantics.
+
+---
+
+# 36. GRACEFUL SHUTDOWN
+
+This is mandatory.
+
+Handle:
+
+```text
+SIGINT
+SIGTERM
+```
+
+Shutdown procedure:
+
+```text
+STOP NEW QUOTE OPERATIONS
+        ↓
+CANCEL ACTIVE BOT ORDERS
+        ↓
+CLOSE BINANCE WEBSOCKET
+        ↓
+STOP HTTP SERVER
+        ↓
+EXIT CLEANLY
+```
+
+Do not abruptly terminate while leaving stale market-making orders active if the API allows cancellation.
+
+---
+
+# 37. CRASH RECOVERY
+
+The service should be safe to restart.
+
+On startup:
+
+```text
+START
+ ↓
+AUTHENTICATE
+ ↓
+GET MARKET
+ ↓
+GET OPEN BOT ORDERS
+ ↓
+CANCEL/RECONCILE STALE ORDERS
+ ↓
+WAIT FOR FRESH BINANCE PRICE
+ ↓
+CALCULATE QUOTES
+ ↓
+START MARKET MAKING
+```
+
+Do not assume in-memory state survived a crash.
+
+The exchange is the source of truth for existing orders.
+
+---
+
+# 38. STARTUP ORDER RECONCILIATION
+
+This is important.
+
+Suppose the bot crashed while these orders existed:
+
+```text
+BUY  @ 99,950
+SELL @ 100,050
+```
+
+After restart, its memory is empty.
+
+It must not simply place another pair.
+
+It should first query the exchange:
+
+```text
+GET open orders
+```
+
+identify its own orders, and clean up or reconcile them.
+
+Then establish the new desired quotes.
+
+---
+
+# 39. ONLY MANAGE BOT ORDERS
+
+When querying open orders, never cancel unrelated user orders.
+
+The bot must be able to distinguish:
+
+```text
+BOT ORDER
+```
+
+from:
+
+```text
+NORMAL USER ORDER
+```
+
+Use whatever identifier is supported by the existing exchange API:
+
+* user account
+* client order ID
+* metadata
+* dedicated bot account
+
+The safest architecture is a dedicated bot exchange account.
+
+---
+
+# 40. HEALTH SERVER
+
+Create:
+
+```text
+src/health/healthServer.ts
+```
+
+Expose:
+
+```text
+GET /health
+```
+
+Example response:
+
+```json
+{
+  "status": "ok",
+  "service": "market-maker",
+  "binanceConnected": true,
+  "exchangeConnected": true,
+  "priceFresh": true,
+  "quoting": true,
+  "market": "BTC-USDT-PERP",
+  "activeBid": true,
+  "activeAsk": true
+}
+```
+
+Do not expose:
+
+* passwords
+* tokens
+* secrets
+* private credentials
+
+---
+
+# 41. HEALTH SEMANTICS
+
+The process being alive does not necessarily mean the bot is healthy.
+
+For example:
+
+```text
+Node process alive
+BUT
+Binance disconnected
+```
+
+The health status should reflect this.
+
+At minimum distinguish:
+
+```text
+process alive
+```
+
+from:
+
+```text
+market maker actively quoting
+```
+
+This allows deployment infrastructure to detect degraded conditions.
+
+---
+
+# 42. LOGGING
+
+Use structured, useful logs.
+
+Examples:
+
+```text
+INFO Binance connected
+INFO Exchange authentication successful
+INFO Market loaded
+INFO Initial quote calculated
+INFO Bid placed
+INFO Ask placed
+INFO Quote updated
+INFO Order filled
+WARN Binance connection lost
+WARN Price became stale
+WARN Quoting paused
+INFO Binance reconnected
+INFO Quoting resumed
+ERROR Exchange request failed
+```
+
+Never log secrets.
+
+Never print complete authentication headers.
+
+Avoid printing every Binance tick.
+
+Do not generate enormous logs at high frequency.
+
+---
+
+# 43. ORDER/FILL MONITORING
+
+The bot should periodically reconcile its orders with the exchange.
+
+Do not rely exclusively on local memory.
+
+For example:
+
+```text
+Every N seconds:
+    fetch bot open orders
+    compare with local state
+    reconcile differences
+```
+
+If an order disappeared because it was:
+
+* filled
+* cancelled
+* rejected
+* expired
+
+the bot should recognize this.
+
+This allows it to replace liquidity when appropriate.
+
+---
+
+# 44. WHEN A QUOTE IS FILLED
+
+Suppose:
+
+```text
+ASK filled
+```
+
+The bot should detect that the ask no longer exists.
+
+Then:
+
+```text
+refresh position
+      ↓
+calculate new quotes
+      ↓
+place replacement liquidity
+```
+
+Do not assume that a resting order remains forever.
+
+---
+
+# 45. TRADE ACTIVITY IS THE GOAL
+
+The service exists to produce realistic exchange activity.
+
+Desired behavior:
+
+```text
+Binance price moves
+        ↓
+Bot quotes change
+        ↓
+Users see liquidity
+        ↓
+Users place orders
+        ↓
+Orders match
+        ↓
+Trades occur
+        ↓
+Positions update
+        ↓
+Balances update
+        ↓
+Order book continues moving
+```
+
+The bot should not attempt to manufacture fake fills against itself.
+
+Its purpose is to provide liquidity that other exchange users can interact with.
+
+---
+
+# 46. IMPORTANT: NO SELF-TRADING
+
+The bot should place resting bid/ask orders around the reference price.
+
+It must NOT intentionally cross its own orders.
+
+Do not implement:
+
+```text
+bot buys its own sell
+```
+
+or:
+
+```text
+bot sells into its own bid
+```
+
+The bot should provide liquidity, not generate meaningless self-trades.
+
+---
+
+# 47. SIMPLE QUOTING MODEL
+
+For v1, use:
+
+```text
+Reference Price = Binance price
+
+Bid = Reference Price - configured spread
+
+Ask = Reference Price + configured spread
+```
+
+Then:
+
+```text
+round bid to tick size
+round ask to tick size
+```
+
+and validate:
+
+```text
+bid < ask
+```
+
+If rounding causes:
+
+```text
+bid >= ask
+```
+
+do not place orders.
+
+Recalculate using safe spacing.
+
+---
+
+# 48. OPTIONAL FUTURE EXTENSIONS
+
+Do NOT implement these unless explicitly requested later:
+
+* multiple price levels
+* dynamic spreads
+* volatility-based spreads
+* inventory skew
+* order-book imbalance
+* Binance order-book arbitrage
+* multiple external exchanges
+* funding-rate strategies
+* statistical arbitrage
+* technical indicators
+* strategy plugins
+* machine learning
+* historical database
+* backtesting
+* PnL analytics
+* portfolio optimization
+
+The first version should remain intentionally small.
+
+---
+
+# 49. ERROR CLASSIFICATION
+
+Errors should be classified conceptually into:
+
+```text
+TRANSIENT
+PERMANENT
+SAFETY
+UNKNOWN
+```
+
+Examples:
+
+Transient:
+
+```text
+timeout
+temporary network error
+502
+503
+```
+
+Permanent/configuration:
+
+```text
+invalid market
+invalid credentials
+invalid quantity
+invalid configuration
+```
+
+Safety:
+
+```text
+stale price
+position limit exceeded
+invalid market data
+```
+
+Unknown:
+
+```text
+unexpected API response
+```
+
+Safety errors should generally pause quoting rather than blindly retry.
+
+---
+
+# 50. NEVER BLINDLY RETRY ORDERS
+
+This rule is especially important.
+
+A failed network response does NOT necessarily mean an order was not created.
+
+Before retrying an ambiguous order operation:
+
+```text
+reconcile with exchange
+```
+
+Use client order IDs if available.
+
+Never create duplicate orders because of a timeout.
+
+---
+
+# 51. CONCURRENCY CONTROL
+
+Prevent multiple quote updates from running simultaneously.
+
+Bad:
+
+```text
+quote update #1
+      ↓
+cancel
+      ↓
+quote update #2
+      ↓
+cancel
+      ↓
+quote update #3
+```
+
+while previous operations are still executing.
+
+Use a simple serialized order-management mechanism.
+
+Only one order reconciliation cycle should modify the bot's orders at a time.
+
+This is more important than raw speed.
+
+---
+
+# 52. QUOTE LOOP DESIGN
+
+Use a controlled loop such as:
+
+```text
+while running:
+
+    wait for next quote interval
+
+    if price is stale:
+        pause
+        continue
+
+    get latest price
+
+    calculate desired bid/ask
+
+    validate prices and quantity
+
+    check risk
+
+    reconcile current orders
+
+    place/cancel only what is necessary
+```
+
+Do not use:
+
+```text
+while(true) {
+    // immediately execute again
+}
+```
+
+without controlled scheduling.
+
+---
+
+# 53. NO MEMORY LEAKS
+
+The service is expected to run continuously.
+
+Avoid:
+
+* unbounded arrays
+* accumulating WebSocket messages
+* storing every price
+* storing every order
+* storing every fill
+* creating unlimited timers
+* creating duplicate WebSocket listeners
+* creating duplicate event handlers on reconnect
+
+The runtime state should remain bounded.
+
+---
+
+# 54. WEBSOCKET LISTENER MANAGEMENT
+
+When reconnecting to Binance:
+
+* clean up the previous socket
+* remove obsolete listeners
+* create exactly one active connection
+* avoid duplicate price handlers
+
+A reconnect must not result in:
+
+```text
+1 connection
+2 handlers
+
+then:
+
+1 connection
+4 handlers
+
+then:
+
+1 connection
+8 handlers
+```
+
+This can create duplicate processing and memory leaks.
+
+---
+
+# 55. HTTP CLIENT TIMEOUTS
+
+Every exchange HTTP request must have a timeout.
+
+Never allow:
+
+```text
+await request()
+```
+
+to hang indefinitely.
+
+Use a reasonable timeout and classify the timeout as a transient failure.
+
+---
+
+# 56. API RESPONSE VALIDATION
+
+Do not blindly trust exchange API responses.
+
+Validate:
+
+* HTTP status
+* JSON shape
+* order ID
+* order status
+* price
+* quantity
+
+If the API returns an unexpected response, log a useful error and stop unsafe processing.
+
+Do not continue with undefined order IDs.
+
+---
+
+# 57. SECURITY
+
+Do not hardcode:
+
+```text
+passwords
+tokens
+API keys
+secrets
+JWTs
+```
+
+Use environment variables.
+
+Do not commit `.env`.
+
+Provide:
+
+```text
+.env.example
+```
+
+with placeholders only.
+
+---
+
+# 58. DOCKER
+
+Create:
+
+```text
+market_maker/Dockerfile
+```
+
+The service should be independently containerizable.
+
+Do not modify the repository's existing Docker configuration.
+
+The Dockerfile must only build/run the market maker.
+
+The service should receive:
+
+```text
+EXCHANGE_API_URL
+BINANCE_SYMBOL
+MARKET
+SPREAD_BPS
+ORDER_SIZE
+...
+```
+
+through environment variables.
+
+---
+
+# 59. PROCESS RESILIENCE
+
+The application itself should not terminate because:
+
+* Binance disconnects
+* exchange temporarily becomes unavailable
+* an order request times out
+* one quote calculation fails
+* one order gets rejected
+* one API request returns malformed data
+
+Only unrecoverable startup/configuration failures should normally terminate the process.
+
+Runtime failures should transition the service into a safe state and recover.
+
+---
+
+# 60. SAFE FAILURE PRINCIPLE
+
+Whenever uncertain:
+
+> Prefer no liquidity over incorrect liquidity.
+
+Examples:
+
+If Binance price is stale:
+
+```text
+STOP QUOTING
+```
+
+If market metadata is unknown:
+
+```text
+STOP QUOTING
+```
+
+If position limit is exceeded:
+
+```text
+STOP INCREASING EXPOSURE
+```
+
+If exchange state is unknown:
+
+```text
+RECONCILE FIRST
+```
+
+If order creation result is ambiguous:
+
+```text
+RECONCILE FIRST
+```
+
+Do not guess.
+
+---
+
+# 61. TESTING REQUIREMENTS
+
+Before considering the service complete, test:
+
+### Binance
+
+* connection
+* price reception
+* malformed data
+* disconnect
+* reconnect
+* stale price detection
+
+### Exchange
+
+* authentication
+* market retrieval
+* balance retrieval
+* order placement
+* order cancellation
+* open-order retrieval
+* position retrieval
+* API timeout
+* API error
+
+### Strategy
+
+* correct bid
+* correct ask
+* spread calculation
+* tick-size rounding
+* step-size rounding
+* invalid values
+
+### Order Manager
+
+* first quote
+* unchanged quote
+* changed quote
+* bid-only change
+* ask-only change
+* filled order
+* cancelled order
+* duplicate prevention
+* restart reconciliation
+
+### Risk
+
+* normal position
+* maximum position
+* long limit
+* short limit
+* invalid quantity
+
+### Shutdown
+
+* SIGINT
+* SIGTERM
+* active order cancellation
+* Binance socket cleanup
+
+---
+
+# 62. DO NOT MODIFY EXCHANGE CODE TO MAKE TESTING EASIER
+
+If a test fails because of an existing exchange implementation:
+
+Do NOT modify the exchange.
+
+Investigate the existing implementation and adapt the Market Maker client accordingly.
+
+Only report an external change as necessary if there is genuinely no way to complete the market maker without it.
+
+---
+
+# 63. README REQUIREMENTS
+
+Create:
+
+```text
+market_maker/README.md
+```
+
+It must explain:
+
+1. What the service does.
+2. Architecture.
+3. Directory structure.
+4. Required environment variables.
+5. How to install.
+6. How to run locally.
+7. How to build.
+8. How to run with Docker.
+9. How to configure the market.
+10. How to configure spread.
+11. How to configure quantity.
+12. How stale-price protection works.
+13. How order reconciliation works.
+14. How graceful shutdown works.
+15. How to troubleshoot Binance connectivity.
+16. How to troubleshoot exchange connectivity.
+17. How to verify that liquidity is appearing on the exchange.
+
+---
+
+# 64. IMPLEMENTATION PROCESS
+
+Follow this exact process.
+
+## STEP 1 — READ FIRST
+
+Before writing anything:
+
+```text
+Inspect entire exchange repository.
+```
+
+Understand the real implementation.
+
+Do not code from assumptions.
+
+## STEP 2 — MAP THE EXCHANGE API
+
+Identify the actual:
+
+```text
+authentication endpoint
+market endpoint
+balance endpoint
+order endpoint
+cancel endpoint
+open-order endpoint
+position endpoint
+deposit/funding endpoint
+```
+
+Document the actual endpoints inside the Market Maker README.
+
+## STEP 3 — DESIGN
+
+Confirm the minimal architecture:
+
+```text
+BinanceFeed
+     ↓
+MarketMaker
+     ↓
+OrderManager
+     ↓
+ExchangeClient
+```
+
+plus:
+
+```text
+RiskManager
+HealthServer
+```
+
+## STEP 4 — IMPLEMENT BINANCE FEED
+
+Get real-time Binance price working.
+
+Do not connect the strategy yet.
+
+## STEP 5 — IMPLEMENT EXCHANGE CLIENT
+
+Prove the bot can:
+
+```text
+authenticate
+read market
+read balance
+place order
+read order
+cancel order
+read position
+```
+
+## STEP 6 — IMPLEMENT STRATEGY
+
+Given:
+
+```text
+Binance price
+```
+
+produce:
+
+```text
+bid
+ask
+```
+
+## STEP 7 — IMPLEMENT ORDER MANAGER
+
+Maintain:
+
+```text
+one bid
+one ask
+```
+
+and safely replace them when needed.
+
+## STEP 8 — ADD SAFETY
+
+Implement:
+
+```text
+stale price
+reconnect
+timeouts
+retries
+rate limits
+position limits
+startup reconciliation
+graceful shutdown
+```
+
+## STEP 9 — HEALTH
+
+Add:
+
+```text
+GET /health
+```
+
+## STEP 10 — DOCKER
+
+Create the Dockerfile.
+
+## STEP 11 — TEST
+
+Run the complete service against the existing exchange.
+
+---
+
+# 65. ACCEPTANCE CRITERIA
+
+The Market Maker is complete only when:
+
+### Architecture
+
+* Node.js service exists inside `market_maker/`.
+* TypeScript is used.
+* Express is used for the service/health endpoint.
+* No files outside `market_maker/` were modified.
+* No new database is required.
+
+### Binance
+
+* Binance WebSocket connects.
+* Real-time prices are received.
+* Prices are held only in memory.
+* Reconnection works.
+* Stale prices pause quoting.
+
+### Exchange
+
+* Bot authenticates successfully.
+* Bot can obtain market information.
+* Bot can obtain balances.
+* Bot can place orders.
+* Bot can cancel orders.
+* Bot can inspect open orders.
+* Bot can inspect its position.
+
+### Liquidity
+
+The exchange order book should show:
+
+```text
+BID
+ASK
+```
+
+around the Binance reference price.
+
+When Binance moves, the bot should update the quotes.
+
+### Reliability
+
+* Runtime exceptions do not unnecessarily kill the process.
+* HTTP requests have timeouts.
+* Retry behavior is bounded.
+* WebSocket reconnection is safe.
+* No duplicate WebSocket listeners.
+* No uncontrolled request loops.
+* No duplicate orders from ambiguous retries.
+* Startup reconciliation works.
+* Graceful shutdown works.
+* Health endpoint works.
+
+### Safety
+
+* No orders from stale prices.
+* No orders with invalid quantities.
+* No orders outside configured risk limits.
+* No intentional self-trading.
+* No infinite exposure.
+* No secrets in source code.
+
+---
+
+# 66. IMPORTANT DESIGN PHILOSOPHY
+
+Do NOT over-engineer this service.
+
+The exchange is the complicated system.
+
+The Market Maker should remain a small external client.
+
+The final relationship should be:
+
+```text
+                 EXTERNAL MARKET
+                      Binance
+                         │
+                         │ price
+                         ▼
+                 MARKET MAKER BOT
+                         │
+                         │ orders
+                         ▼
+                  EXCHANGE REST API
+                         │
+                         ▼
+                  MATCHING ENGINE
+                         │
+                         ▼
+                    ORDER BOOK
+                         │
+                         ▼
+                    EXCHANGE USERS
+```
+
+The Market Maker does not replace the exchange.
+
+It does not bypass the exchange.
+
+It does not maintain another copy of the exchange.
+
+It does not become another trading platform.
+
+It simply provides liquidity.
+
+---
+
+# 67. FINAL RULE: DO NOT HALLUCINATE
+
+This rule is extremely important.
+
+Before implementing anything that interacts with the exchange:
+
+> READ THE ACTUAL CODE.
+
+Do not assume:
+
+```text
+endpoint names
+request bodies
+response bodies
+authentication format
+order status values
+market symbols
+balance behavior
+position behavior
+```
+
+If the documentation and implementation disagree:
+
+> The actual implementation is the source of truth.
+
+If something is ambiguous:
+
+> Investigate before coding.
+
+If something cannot be verified:
+
+> Say so instead of inventing it.
+
+---
+
+# 68. FINAL RULE: DO NOT EXPAND SCOPE
+
+The requested product is:
+
+> A minimal, reliable, continuously running market-making service that uses Binance as an external price reference and provides bid/ask liquidity on our existing perpetual futures exchange.
+
+Do not turn this into:
+
+* an algorithmic trading platform
+* an arbitrage engine
+* a quantitative research system
+* a portfolio manager
+* a trading framework
+* a second exchange
+* a database-backed analytics service
+
+Keep it small.
+
+Keep it understandable.
+
+Keep it reliable.
+
+Keep all changes strictly inside:
+
+```text
+market_maker/
+```
+
+---
+
+# 69. FINAL EXPECTED RESULT
+
+After implementation, running:
+
+```bash
+npm run start
+```
+
+should produce something conceptually similar to:
+
+```text
+[INFO] Market Maker starting
+[INFO] Configuration loaded
+[INFO] Authenticating with exchange
+[INFO] Exchange authentication successful
+[INFO] Loading BTC-USDT-PERP market
+[INFO] Binance WebSocket connecting
+[INFO] Binance connected
+[INFO] Current BTC price: 100000.00
+[INFO] Calculated bid: 99950.00
+[INFO] Calculated ask: 100050.00
+[INFO] Bid placed: <order-id>
+[INFO] Ask placed: <order-id>
+[INFO] Market maker quoting BTC-USDT-PERP
+```
+
+When Binance moves:
+
+```text
+[INFO] BTC price: 100100.00
+[INFO] Desired bid changed
+[INFO] Desired ask changed
+[INFO] Replacing quotes
+[INFO] New bid placed
+[INFO] New ask placed
+```
+
+If Binance disconnects:
+
+```text
+[WARN] Binance connection lost
+[WARN] Price is stale
+[WARN] Quoting paused
+[INFO] Cancelling active quotes
+[INFO] Reconnecting to Binance
+```
+
+After recovery:
+
+```text
+[INFO] Binance reconnected
+[INFO] Fresh price received
+[INFO] Quoting resumed
+```
+
+The service should be able to run continuously for long periods without accumulating state, leaking resources, creating duplicate orders, or requiring manual intervention.
+
+---
+
+# 70. YOUR IMPLEMENTATION PRIORITY
+
+Always prioritize in this order:
+
+```text
+1. Correctness
+2. Safety
+3. Reliability
+4. Simplicity
+5. Maintainability
+6. Performance
+```
+
+Do NOT sacrifice correctness or safety merely to make the bot quote faster.
+
+For this project, a stable 500ms–1s quote cycle is more valuable than an unnecessarily complex high-frequency implementation.
+
+The goal is not to win a latency competition.
+
+The goal is to make the exchange **look and behave like an active trading venue with continuously available liquidity**, using Binance as the external price reference.

@@ -19,6 +19,8 @@ public:
   bool connect(const std::string& host, int port);
   bool isConnected() const;
   redisContext* context() { return ctx_; }
+  const std::string& host() const { return host_; }
+  int port() const { return port_; }
 private:
   redisContext* ctx_ = nullptr;
   std::string host_;

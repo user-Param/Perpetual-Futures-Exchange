@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 namespace exch {
 
@@ -37,6 +38,19 @@ static std::string toStr(redisReply* r) {
   return std::string(r->str, r->len);
 }
 
+// Helper: execute command with reconnection retry using argv
+static redisReply* executeWithRetry(RedisClient& client, int argc, const char** argv, const size_t* argvlen) {
+  redisReply* r = (redisReply*)redisCommandArgv(client.context(), argc, argv, argvlen);
+
+  if (!r && client.context()->err) {
+    // Connection lost, try reconnect once
+    if (client.connect(client.host(), client.port())) {
+      r = (redisReply*)redisCommandArgv(client.context(), argc, argv, argvlen);
+    }
+  }
+  return r;
+}
+
 std::vector<StreamEntry> RedisConsumer::readGroup(
     const std::string& stream,
     const std::string& group,
@@ -45,20 +59,23 @@ std::vector<StreamEntry> RedisConsumer::readGroup(
     int blockMs) {
   std::vector<StreamEntry> out;
   if (!client.isConnected()) return out;
-  // XREADGROUP GROUP <group> <consumer> COUNT <n> BLOCK <ms> STREAMS <stream> >
-  redisReply* r = (redisReply*)redisCommand(
-      client.context(),
-      "XREADGROUP GROUP %s %s COUNT %d BLOCK %d STREAMS %s >",
-      group.c_str(), consumer.c_str(), count, blockMs, stream.c_str());
-  if (!r) {
-    if (client.context()->err) {
-      // try to reconnect
-      if (client.connect("127.0.0.1", 6379)) {
-        ensureGroup(stream, group);
-      }
-    }
-    return out;
-  }
+
+  std::string countStr = std::to_string(count);
+  std::string blockStr = std::to_string(blockMs);
+
+  const char* argv[] = {
+    "XREADGROUP", "GROUP", group.c_str(), consumer.c_str(),
+    "COUNT", countStr.c_str(),
+    "BLOCK", blockStr.c_str(),
+    "STREAMS", stream.c_str(), ">"
+  };
+  const int argc = 11;
+  std::vector<size_t> argvlen(argc);
+  for (int i = 0; i < argc; ++i) argvlen[i] = strlen(argv[i]);
+
+  redisReply* r = executeWithRetry(client, argc, argv, argvlen.data());
+
+  if (!r) return out;
   if (r->type == REDIS_REPLY_NIL) {
     freeReplyObject(r);
     return out;
@@ -92,13 +109,13 @@ std::vector<StreamEntry> RedisConsumer::readGroup(
 
 bool RedisConsumer::ensureGroup(const std::string& stream, const std::string& group) {
   if (!client.isConnected()) return false;
-  redisReply* r = (redisReply*)redisCommand(
-      client.context(),
-      "XGROUP CREATE %s %s $ MKSTREAM",
-      stream.c_str(), group.c_str());
+  const char* argv[] = {"XGROUP", "CREATE", stream.c_str(), group.c_str(), "$", "MKSTREAM"};
+  const int argc = 6;
+  std::vector<size_t> argvlen(argc);
+  for (int i = 0; i < argc; ++i) argvlen[i] = strlen(argv[i]);
+  redisReply* r = executeWithRetry(client, argc, argv, argvlen.data());
   if (!r) return false;
   bool ok = (r->type == REDIS_REPLY_STATUS || r->type == REDIS_REPLY_INTEGER);
-  // BUSYGROUP is fine (already exists)
   if (r->type == REDIS_REPLY_ERROR && std::strstr(r->str, "BUSYGROUP") != nullptr) ok = true;
   freeReplyObject(r);
   return ok;
@@ -106,8 +123,11 @@ bool RedisConsumer::ensureGroup(const std::string& stream, const std::string& gr
 
 bool RedisConsumer::ack(const std::string& stream, const std::string& group, const std::string& id) {
   if (!client.isConnected()) return false;
-  redisReply* r = (redisReply*)redisCommand(
-      client.context(), "XACK %s %s %s", stream.c_str(), group.c_str(), id.c_str());
+  const char* argv[] = {"XACK", stream.c_str(), group.c_str(), id.c_str()};
+  const int argc = 4;
+  std::vector<size_t> argvlen(argc);
+  for (int i = 0; i < argc; ++i) argvlen[i] = strlen(argv[i]);
+  redisReply* r = executeWithRetry(client, argc, argv, argvlen.data());
   if (!r) return false;
   bool ok = (r->type == REDIS_REPLY_INTEGER);
   freeReplyObject(r);
@@ -116,8 +136,11 @@ bool RedisConsumer::ack(const std::string& stream, const std::string& group, con
 
 bool RedisConsumer::publish(const std::string& channel, const std::string& message) {
   if (!client.isConnected()) return false;
-  redisReply* r = (redisReply*)redisCommand(
-      client.context(), "PUBLISH %s %s", channel.c_str(), message.c_str());
+  const char* argv[] = {"PUBLISH", channel.c_str(), message.c_str()};
+  const int argc = 3;
+  std::vector<size_t> argvlen(argc);
+  for (int i = 0; i < argc; ++i) argvlen[i] = strlen(argv[i]);
+  redisReply* r = executeWithRetry(client, argc, argv, argvlen.data());
   if (!r) return false;
   bool ok = (r->type == REDIS_REPLY_INTEGER);
   freeReplyObject(r);

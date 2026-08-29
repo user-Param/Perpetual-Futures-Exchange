@@ -10,6 +10,7 @@ import { fillsRouter } from "./routes/fills";
 import { fundingRouter } from "./routes/funding";
 import { startOutboxWorker } from "./workers/outboxWorker";
 import { startDbWriter } from "./workers/dbWriter";
+import { startMarkPriceUpdater } from "./workers/markPriceUpdater";
 
 const app = express();
 app.use(cors());
@@ -41,6 +42,11 @@ async function main() {
     await startDbWriter();
   } catch (e) {
     console.error("Failed to start DB writer:", (e as Error).message);
+  }
+  try {
+    await startMarkPriceUpdater();
+  } catch (e) {
+    console.error("Failed to start mark price updater:", (e as Error).message);
   }
 }
 
