@@ -15,3 +15,4 @@ export const REDIS_ORDER_COMMANDS_STREAM = "order_commands";
 export const REDIS_ENGINE_EVENTS_CHANNEL = "engine_events";
 export const REDIS_ORDERBOOK_UPDATES_CHANNEL = "orderbook_updates";
 export const REDIS_TRADE_UPDATES_CHANNEL = "trade_updates";
+export const REDIS_MARK_PRICE_KEY = "mark_price:reference";

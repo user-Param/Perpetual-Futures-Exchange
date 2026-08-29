@@ -1,0 +1,45 @@
+API listening on http://localhost:3000
+DB Writer subscribed to engine_events
+{"level":"WARN","timestamp":"2026-08-28T09:36:30.977Z","logger":"kafkajs","message":"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \"createPartitioner: Partitioners.LegacyPartitioner\". See the migration guide at https://kafka.js.org/docs/migration-guide-v2.0.0#producer-new-default-partitioner for details. Silence this warning by setting the environment variable \"KAFKAJS_NO_PARTITIONER_WARNING=1\""}
+(node:7643) TimeoutNegativeWarning: -1787909790984 is a negative number.
+Timeout duration was set to 1.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16)
+Redis error: connect ECONNREFUSED 127.0.0.1:6379

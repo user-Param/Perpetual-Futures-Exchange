@@ -21,7 +21,8 @@ static Engine* g_engine = nullptr;
 static KafkaProducer* g_kafka = nullptr;
 static RedisConsumer* g_redis = nullptr;
 
-static void handleSignal(int) {
+static void handleSignal(int sig) {
+  std::cerr << "[engine] signal received: " << sig << std::endl;
   running.store(false);
 }
 
@@ -40,6 +41,7 @@ static int envIntOr(const char* key, int def) {
 int main() {
   std::signal(SIGINT, handleSignal);
   std::signal(SIGTERM, handleSignal);
+  std::signal(SIGPIPE, SIG_IGN);
 
   std::string redisHost = envOr("REDIS_HOST", "127.0.0.1");
   int redisPort = envIntOr("REDIS_PORT", 6379);
@@ -97,7 +99,12 @@ int main() {
             << " group=" << group << " consumer=" << consumer
             << " events_channel=" << eventsChannel << std::endl;
 
+  int loopCount = 0;
   while (running.load()) {
+    loopCount++;
+    if (loopCount % 10 == 0) {
+      std::cerr << "[engine] loop iteration " << loopCount << ", running=" << running.load() << std::endl;
+    }
     auto entries = consumerClient.readGroup(stream, group, consumer, 32, 1000);
     for (auto& e : entries) {
       auto j = fieldsToJson(e.fields);
