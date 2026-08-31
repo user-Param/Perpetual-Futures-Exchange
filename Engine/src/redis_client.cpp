@@ -147,4 +147,19 @@ bool RedisConsumer::publish(const std::string& channel, const std::string& messa
   return ok;
 }
 
+std::optional<std::string> RedisConsumer::get(const std::string& key) {
+  if (!client.isConnected()) return std::nullopt;
+  const char* argv[] = {"GET", key.c_str()};
+  const int argc = 2;
+  std::vector<size_t> argvlen(argc);
+  for (int i = 0; i < argc; ++i) argvlen[i] = strlen(argv[i]);
+  redisReply* r = executeWithRetry(client, argc, argv, argvlen.data());
+  if (!r) return std::nullopt;
+  if (r->type == REDIS_REPLY_NIL) { freeReplyObject(r); return std::nullopt; }
+  if (r->type != REDIS_REPLY_STRING) { freeReplyObject(r); return std::nullopt; }
+  std::string val(r->str, r->len);
+  freeReplyObject(r);
+  return val;
+}
+
 }  // namespace exch

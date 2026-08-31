@@ -43,6 +43,8 @@ public:
   bool ack(const std::string& stream, const std::string& group, const std::string& id);
   // Publish to a channel.
   bool publish(const std::string& channel, const std::string& message);
+  // Simple GET helper for mark price (used for external liquidity)
+  std::optional<std::string> get(const std::string& key);
 };
 
 }  // namespace exch

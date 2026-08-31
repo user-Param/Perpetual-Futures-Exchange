@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../db/client";
 import { positions, markets } from "../db/schema";
 import { D, gt } from "../utils/decimal";
-import { redis, REDIS_MARK_PRICE_KEY } from "../redis";
+import { redis, REDIS_MARK_PRICE_PREFIX } from "../redis";
 
 interface MarkPriceData {
   price: string;
@@ -82,21 +82,25 @@ export async function startMarkPriceUpdater(): Promise<void> {
 
   setInterval(async () => {
     try {
-      const raw = await redis.get(REDIS_MARK_PRICE_KEY);
-      const data = parseMarkPriceData(raw);
+      const activeMarkets = await db
+        .select({ symbol: markets.symbol })
+        .from(markets)
+        .where(eq(markets.status, "active"));
 
-      if (!data) {
-        console.debug("[markPriceUpdater] No valid reference price data in Redis");
-        return;
+      for (const m of activeMarkets) {
+        const raw = await redis.get(`${REDIS_MARK_PRICE_PREFIX}${m.symbol}`);
+        const data = parseMarkPriceData(raw);
+
+        if (!data) continue;
+
+        const age = Date.now() - data.timestamp;
+        if (age > MAX_STALENESS_MS) {
+          console.warn(`[markPriceUpdater] Reference price for ${m.symbol} is stale (age: ${age}ms), skipping`);
+          continue;
+        }
+
+        await updateMarkPrices(data.price, data.market);
       }
-
-      const age = Date.now() - data.timestamp;
-      if (age > MAX_STALENESS_MS) {
-        console.warn(`[markPriceUpdater] Reference price is stale (age: ${age}ms), skipping update`);
-        return;
-      }
-
-      await updateMarkPrices(data.price, data.market);
     } catch (e) {
       console.error("[markPriceUpdater] Polling error:", (e as Error).message);
     }

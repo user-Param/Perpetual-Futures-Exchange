@@ -885,6 +885,14 @@ CMakeFiles/engine.dir/src/snapshot.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/chrono \
   /opt/homebrew/include/nlohmann/detail/macro_unscope.hpp \
   /opt/homebrew/include/nlohmann/thirdparty/hedley/hedley_undef.hpp \
+  /Users/param/Documents/Projects/Exchange/Engine/src/redis_client.h \
+  /opt/homebrew/include/hiredis/hiredis.h \
+  /opt/homebrew/include/hiredis/read.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/time.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_types/_timeval64.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/_select.h \
+  /opt/homebrew/include/hiredis/sds.h \
+  /opt/homebrew/include/hiredis/alloc.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/fstream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/thread \

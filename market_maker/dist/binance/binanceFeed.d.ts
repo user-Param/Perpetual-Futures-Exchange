@@ -1,4 +1,5 @@
 type PriceCallback = (price: string, timestamp: number) => void;
+type SymbolPriceCallback = (symbol: string, price: string, timestamp: number) => void;
 export interface BinanceFeedEvents {
     onPrice: (callback: PriceCallback) => void;
     onConnect: () => void;
@@ -10,15 +11,22 @@ export declare class BinanceFeed {
     private reconnectAttempts;
     private maxReconnectDelay;
     private priceCallback;
+    private symbolPriceCallback;
     private lastPriceUpdate;
+    private perSymbolLastUpdate;
     private isRunning;
     private reconnectTimeout;
-    constructor();
+    private symbols;
+    constructor(symbols?: string[]);
     start(): void;
     stop(): void;
     onPrice(callback: PriceCallback): void;
+    onSymbolPrice(callback: SymbolPriceCallback): void;
     getLastPriceUpdate(): number;
+    getLastPriceUpdateFor(symbol: string): number;
     isPriceStale(): boolean;
+    isPriceStaleFor(symbol: string): boolean;
+    private buildWsUrl;
     private connect;
     private handleMessage;
     private scheduleReconnect;

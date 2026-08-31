@@ -13,10 +13,15 @@ class BinanceFeed {
     reconnectAttempts = 0;
     maxReconnectDelay = 30000;
     priceCallback = null;
+    symbolPriceCallback = null;
     lastPriceUpdate = 0;
+    perSymbolLastUpdate = new Map();
     isRunning = false;
     reconnectTimeout = null;
-    constructor() { }
+    symbols;
+    constructor(symbols) {
+        this.symbols = symbols && symbols.length > 0 ? symbols : config_1.config.binance.symbols;
+    }
     start() {
         if (this.isRunning)
             return;
@@ -37,17 +42,36 @@ class BinanceFeed {
     onPrice(callback) {
         this.priceCallback = callback;
     }
+    onSymbolPrice(callback) {
+        this.symbolPriceCallback = callback;
+    }
     getLastPriceUpdate() {
         return this.lastPriceUpdate;
+    }
+    getLastPriceUpdateFor(symbol) {
+        return this.perSymbolLastUpdate.get(symbol.toUpperCase()) || 0;
     }
     isPriceStale() {
         return Date.now() - this.lastPriceUpdate > config_1.config.priceStaleMs;
     }
+    isPriceStaleFor(symbol) {
+        const ts = this.perSymbolLastUpdate.get(symbol.toUpperCase()) || 0;
+        if (ts === 0)
+            return true;
+        return Date.now() - ts > config_1.config.priceStaleMs;
+    }
+    buildWsUrl() {
+        if (this.symbols.length === 1) {
+            return `wss://fstream.binance.com/ws/${this.symbols[0].toLowerCase()}@trade`;
+        }
+        // Combined stream for multiple symbols: /stream?streams=btcusdt@trade/ethusdt@trade
+        const streams = this.symbols.map((s) => `${s.toLowerCase()}@trade`).join("/");
+        return `wss://fstream.binance.com/stream?streams=${streams}`;
+    }
     connect() {
         if (!this.isRunning)
             return;
-        // Use trade stream for real-time price updates
-        const wsUrl = `wss://fstream.binance.com/ws/${config_1.config.binance.symbol.toLowerCase()}@trade`;
+        const wsUrl = this.buildWsUrl();
         logger_1.logger.info("Connecting to Binance WebSocket", { url: wsUrl });
         this.ws = new ws_1.default(wsUrl);
         this.ws.on("open", () => {
@@ -75,15 +99,35 @@ class BinanceFeed {
         });
     }
     handleMessage(message) {
-        const msg = message;
-        // Handle trade stream messages: e=trade, p=price
+        const raw = message;
+        // Combined stream envelope: { stream: "btcusdt@trade", data: { e:"trade", p:"...", E:... } }
+        let msg;
+        let streamSymbol = null;
+        if (typeof raw.stream === "string" && raw.data) {
+            streamSymbol = String(raw.stream).split("@")[0].toUpperCase();
+            msg = raw.data;
+        }
+        else {
+            msg = raw;
+            // Single stream: infer symbol from config
+            if (this.symbols.length === 1)
+                streamSymbol = this.symbols[0].toUpperCase();
+        }
+        // Handle trade stream messages: e=trade, p=price, s=symbol
         if (msg.e === "trade" && typeof msg.p === "string") {
             const price = msg.p;
             const timestamp = typeof msg.E === "number" ? msg.E : Date.now();
+            // Prefer symbol from message field `s` (e.g. "BTCUSDT") if present
+            const sym = typeof msg.s === "string" ? String(msg.s).toUpperCase() : streamSymbol;
             if (parseFloat(price) > 0) {
                 this.lastPriceUpdate = timestamp;
+                if (sym)
+                    this.perSymbolLastUpdate.set(sym, timestamp);
                 if (this.priceCallback) {
                     this.priceCallback(price, timestamp);
+                }
+                if (this.symbolPriceCallback && sym) {
+                    this.symbolPriceCallback(sym, price, timestamp);
                 }
             }
         }
@@ -91,10 +135,16 @@ class BinanceFeed {
         else if (msg.e === "markPriceUpdate" && typeof msg.p === "string") {
             const price = msg.p;
             const timestamp = typeof msg.E === "number" ? msg.E : Date.now();
+            const sym = typeof msg.s === "string" ? String(msg.s).toUpperCase() : streamSymbol;
             if (parseFloat(price) > 0) {
                 this.lastPriceUpdate = timestamp;
+                if (sym)
+                    this.perSymbolLastUpdate.set(sym, timestamp);
                 if (this.priceCallback) {
                     this.priceCallback(price, timestamp);
+                }
+                if (this.symbolPriceCallback && sym) {
+                    this.symbolPriceCallback(sym, price, timestamp);
                 }
             }
         }

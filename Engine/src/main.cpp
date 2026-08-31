@@ -73,6 +73,8 @@ int main() {
 
   Engine engine;
   g_engine = &engine;
+  // Connect Binance external liquidity: Engine will fallback to Binance mark price when book empty
+  engine.setRedisForExternal(&consumerClient);
 
   engine.setEventCallback([&](const json& ev) {
     std::string s = ev.dump();

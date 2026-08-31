@@ -1,5 +1,6 @@
 #include "engine.h"
 #include <iostream>
+#include <optional>
 
 namespace exch {
 
@@ -93,6 +94,40 @@ void Engine::placeOrder(const nlohmann::json& oj) {
   }
 
   auto trades = book->match(o);
+
+  // ---- External Binance liquidity: if order not fully filled, try to fill remainder at mark price ----
+  {
+    Decimal remaining = o.quantity - o.filled;
+    if (remaining > Decimal(int64_t(0)) && o.status != OrderStatus::Rejected && redisForExternal_) {
+      auto markOpt = fetchMarkPrice(o.market);
+      if (markOpt) {
+        Decimal markPrice = *markOpt;
+        bool shouldUseExternal = false;
+        if (o.type == OrderType::Market) shouldUseExternal = true;
+        else if (o.side == Side::Buy && markPrice <= o.price) shouldUseExternal = true;
+        else if (o.side == Side::Sell && markPrice >= o.price) shouldUseExternal = true;
+        // For IOC/FOK market orders, also allow external fill
+        if (shouldUseExternal) {
+          // Generate synthetic external trade for remaining quantity
+          Trade ext;
+          ext.market = o.market;
+          ext.makerOrderId = "binance-external-" + o.market + "-" + std::to_string(o.timestamp);
+          ext.takerOrderId = o.id;
+          ext.makerUserId = "00000000-0000-0000-0000-000000000001";
+          ext.takerUserId = o.userId;
+          ext.takerSide = o.side;
+          ext.price = markPrice;
+          ext.quantity = remaining;
+          ext.timestamp = o.timestamp;
+          trades.push_back(ext);
+          o.filled += remaining;
+          o.status = OrderStatus::Filled;
+          std::cerr << "[engine] external liquidity fill " << o.market << " side=" << sideStr(o.side)
+                    << " price=" << markPrice.toString() << " qty=" << remaining.toString() << std::endl;
+        }
+      }
+    }
+  }
   {
     nlohmann::json ev;
     ev["type"] = "ORDER_ACCEPTED";
@@ -273,6 +308,33 @@ void Engine::publishAllBookUpdates() {
     ev["bids"] = depth["bids"];
     ev["asks"] = depth["asks"];
     publish(ev);
+  }
+}
+
+std::optional<Decimal> Engine::fetchMarkPrice(const std::string& market) {
+  if (!redisForExternal_) return std::nullopt;
+  std::string key = "mark_price:reference:" + market;
+  auto valOpt = redisForExternal_->get(key);
+  if (!valOpt) return std::nullopt;
+  try {
+    auto j = nlohmann::json::parse(*valOpt);
+    std::string priceStr = j.value("price", "");
+    if (priceStr.empty() && j.contains("price") && j["price"].is_number()) {
+      priceStr = std::to_string(j["price"].get<double>());
+    }
+    if (priceStr.empty()) return std::nullopt;
+    Decimal d(priceStr);
+    if (d <= Decimal(int64_t(0))) return std::nullopt;
+    // Check staleness: timestamp field
+    int64_t ts = 0;
+    if (j.contains("timestamp") && j["timestamp"].is_number()) ts = j["timestamp"].get<int64_t>();
+    if (ts > 0 && (std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch()).count() - ts) > 30000) {
+      return std::nullopt;
+    }
+    return d;
+  } catch (...) {
+    return std::nullopt;
   }
 }
 

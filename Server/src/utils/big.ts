@@ -117,11 +117,11 @@ export default class Big {
     if (this.decimals === 0) {
       return (this.negative ? "-" : "") + this.value.toString();
     }
-    const abs = this.negative ? -this.value : this.value;
-    const str = abs.toString().padStart(this.decimals + 1, "0");
-    const intPart = str.slice(0, str.length - this.decimals);
-    const decPart = str.slice(str.length - this.decimals);
-    return `${this.negative ? "-" : ""}${intPart}.${decPart}`;
+    const absStr = this.value.toString().padStart(this.decimals + 1, "0");
+    const intPart = absStr.slice(0, absStr.length - this.decimals);
+    const decPart = absStr.slice(absStr.length - this.decimals);
+    const base = decPart ? `${intPart}.${decPart}` : intPart;
+    return `${this.negative ? "-" : ""}${base}`;
   }
 
   toFixed(decimals: number): string {
