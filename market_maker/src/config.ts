@@ -1,5 +1,15 @@
 import "dotenv/config";
 
+const parseMarkets = (): string[] => {
+  const raw = process.env.MARKETS || process.env.MARKET || "BTC-USDT-PERP,ETH-USDT-PERP,SOL-USDT-PERP,XRP-USDT-PERP,ADA-USDT-PERP,DOGE-USDT-PERP,DOT-USDT-PERP,LINK-USDT-PERP,MATIC-USDT-PERP,AVAX-USDT-PERP,UNI-USDT-PERP,ATOM-USDT-PERP,LTC-USDT-PERP,BCH-USDT-PERP,NEAR-USDT-PERP";
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+};
+
+const parseBinanceSymbols = (): string[] => {
+  const raw = process.env.BINANCE_SYMBOLS || process.env.BINANCE_SYMBOL || "BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT,ADAUSDT,DOGEUSDT,DOTUSDT,LINKUSDT,MATICUSDT,AVAXUSDT,UNIUSDT,ATOMUSDT,LTCUSDT,BCHUSDT,NEARUSDT";
+  return raw.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+};
+
 export const config = {
   exchange: {
     apiUrl: process.env.EXCHANGE_API_URL || "http://localhost:3000",
@@ -8,11 +18,13 @@ export const config = {
   },
   binance: {
     symbol: process.env.BINANCE_SYMBOL || "BTCUSDT",
+    symbols: parseBinanceSymbols(),
     wsUrl:
       process.env.BINANCE_WS_URL ||
       "wss://fstream.binance.com/ws/btcusdt@markPrice",
   },
   market: process.env.MARKET || "BTC-USDT-PERP",
+  markets: parseMarkets(),
   spreadBps: parseInt(process.env.SPREAD_BPS || "10", 10),
   orderSize: process.env.ORDER_SIZE || "0.001",
   quoteRefreshMs: parseInt(process.env.QUOTE_REFRESH_MS || "1000", 10),

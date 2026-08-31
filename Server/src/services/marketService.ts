@@ -1,7 +1,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "../db/client";
 import { assets, fills, markets } from "../db/schema";
-import { redis } from "../redis";
+import { redis, REDIS_MARK_PRICE_PREFIX } from "../redis";
 
 export async function listMarkets() {
   const rows = await db
@@ -102,9 +102,27 @@ export async function getTicker24h(symbol: string) {
       tradeCount: sql<number>`COUNT(*)::int`,
     })
     .from(fills);
+
+  let lastPrice = null;
+  const raw = await redis.get(`${REDIS_MARK_PRICE_PREFIX}${symbol}`);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.market === symbol && typeof parsed.price === "string" && parseFloat(parsed.price) > 0) {
+        lastPrice = parsed.price;
+      }
+    } catch {
+      // ignore parse errors, fall through to null
+    }
+  }
+
+  if (!lastPrice) {
+    lastPrice = agg?.lastPrice ?? null;
+  }
+
   return {
     symbol: market.symbol,
-    lastPrice: agg?.lastPrice ?? null,
+    lastPrice,
     volume24h: agg?.volume24h ?? "0",
     tradeCount: agg?.tradeCount ?? 0,
   };

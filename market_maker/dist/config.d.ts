@@ -7,9 +7,11 @@ export declare const config: {
     };
     binance: {
         symbol: string;
+        symbols: string[];
         wsUrl: string;
     };
     market: string;
+    markets: string[];
     spreadBps: number;
     orderSize: string;
     quoteRefreshMs: number;

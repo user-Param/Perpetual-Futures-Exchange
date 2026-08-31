@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/client";
-import { assets, fills, markets, orders, positions } from "../db/schema";
+import { assets, fills, markets, orders, positions, users } from "../db/schema";
 import { D, add, mul, sub, gt } from "../utils/decimal";
 import { unlockBalance, debitLocked } from "../services/balanceService";
 import {
@@ -127,6 +127,20 @@ async function handleOrderCanceled(ev: EngineEvent) {
     .where(eq(orders.id, ev.orderId));
 }
 
+const EXTERNAL_USER_ID = "00000000-0000-0000-0000-000000000001";
+
+async function ensureExternalUser(): Promise<void> {
+  try {
+    const [existing] = await db.select().from(users).where(eq(users.id, EXTERNAL_USER_ID)).limit(1);
+    if (!existing) {
+      await db.execute(sql`INSERT INTO users (id, email, password_hash, name, role) VALUES (${EXTERNAL_USER_ID}::uuid, 'binance@external.system', 'external', 'Binance LP', 'user') ON CONFLICT (id) DO NOTHING`);
+      console.log("[dbWriter] External LP user ensured", EXTERNAL_USER_ID);
+    }
+  } catch (e) {
+    console.warn("[dbWriter] ensureExternalUser failed", (e as Error).message);
+  }
+}
+
 async function handleTradeExecuted(ev: EngineEvent) {
   if (
     !ev.market ||
@@ -139,6 +153,12 @@ async function handleTradeExecuted(ev: EngineEvent) {
     !ev.side
   ) {
     return;
+  }
+  const isExternalMaker = ev.makerUserId === EXTERNAL_USER_ID;
+  const isExternalTaker = ev.takerUserId === EXTERNAL_USER_ID;
+  // Ensure external user exists for FK
+  if (isExternalMaker || isExternalTaker) {
+    await ensureExternalUser();
   }
   const [market] = await db.select().from(markets).where(eq(markets.symbol, ev.market)).limit(1);
   if (!market) return;
@@ -158,6 +178,56 @@ async function handleTradeExecuted(ev: EngineEvent) {
   const notional = mul(ev.price, ev.quantity);
 
   await db.transaction(async (tx) => {
+    // For external LP, ensure synthetic maker order exists so FK passes
+    if (isExternalMaker) {
+      const [existingMaker] = await tx.select().from(orders).where(eq(orders.id, ev.makerOrderId!)).limit(1);
+      if (!existingMaker) {
+        try {
+          await tx.insert(orders).values({
+            id: ev.makerOrderId!,
+            userId: EXTERNAL_USER_ID,
+            marketId: market.id,
+            orderType: "limit",
+            side: ev.side === "buy" ? "sell" : "buy",
+            price: ev.price!,
+            quantity: ev.quantity!,
+            filledQuantity: ev.quantity!,
+            status: "filled",
+            timeInForce: "GTC",
+            leverage: "1",
+            marginMode: "isolated",
+            reduceOnly: false,
+            postOnly: false,
+          });
+        } catch (e) {
+          // ignore if race
+        }
+      }
+    }
+    if (isExternalTaker) {
+      const [existingTaker] = await tx.select().from(orders).where(eq(orders.id, ev.takerOrderId!)).limit(1);
+      if (!existingTaker) {
+        try {
+          await tx.insert(orders).values({
+            id: ev.takerOrderId!,
+            userId: EXTERNAL_USER_ID,
+            marketId: market.id,
+            orderType: "limit",
+            side: ev.side!,
+            price: ev.price!,
+            quantity: ev.quantity!,
+            filledQuantity: ev.quantity!,
+            status: "filled",
+            timeInForce: "GTC",
+            leverage: "1",
+            marginMode: "isolated",
+            reduceOnly: false,
+            postOnly: false,
+          });
+        } catch {}
+      }
+    }
+
     const [fill] = await tx
       .insert(fills)
       .values({
@@ -202,16 +272,17 @@ async function handleTradeExecuted(ev: EngineEvent) {
         // Credit base (qty) to available
         await creditAvailable(tx, takerOrder.userId, market.baseAssetId, ev.quantity!);
       }
-      const [makerOrder] = await tx
+        const [makerOrder] = await tx
         .select()
         .from(orders)
         .where(eq(orders.id, ev.makerOrderId!))
         .limit(1);
-      if (makerOrder) {
+      if (makerOrder && !isExternalMaker) {
         await debitLocked(makerOrder.userId, market.baseAssetId, ev.quantity!);
         const makerProceeds = D(notional).minus(D(makerFee)).toString();
         await creditAvailable(tx, makerOrder.userId, market.quoteAssetId, makerProceeds);
       }
+      // External maker has infinite liquidity — no balance ops needed
     } else {
       // Taker is seller, maker is buyer.
       // Taker: -base(qty), +quote(notional - takerFee)
@@ -231,7 +302,7 @@ async function handleTradeExecuted(ev: EngineEvent) {
         .from(orders)
         .where(eq(orders.id, ev.makerOrderId!))
         .limit(1);
-      if (makerOrder) {
+      if (makerOrder && !isExternalMaker) {
         const leverage = makerOrder.leverage || "1";
         const margin = D(notional).div(D(leverage)).toString();
         await debitLocked(makerOrder.userId, market.quoteAssetId, margin);
@@ -244,31 +315,35 @@ async function handleTradeExecuted(ev: EngineEvent) {
     await applyTradeToOrder(ev.makerOrderId!, ev.quantity!, ev.price!);
     await applyTradeToOrder(ev.takerOrderId!, ev.quantity!, ev.price!);
 
-    // Update positions (simple version: one open position per (user, market, side))
-    await upsertPosition(
-      tx,
-      market.id,
-      market.baseAssetId,
-      ev.takerUserId!,
-      ev.takerOrderId!,
-      ev.side!,
-      ev.price!,
-      ev.quantity!,
-      takerOrderLeverage(tx, ev.takerOrderId!),
-      takerOrderMarginMode(tx, ev.takerOrderId!)
-    );
-    await upsertPosition(
-      tx,
-      market.id,
-      market.baseAssetId,
-      ev.makerUserId!,
-      ev.makerOrderId!,
-      ev.side === "buy" ? "sell" : "buy",
-      ev.price!,
-      ev.quantity!,
-      makerOrderLeverage(tx, ev.makerOrderId!),
-      makerOrderMarginMode(tx, ev.makerOrderId!)
-    );
+    // Update positions — skip external LP (infinite liquidity, no position tracking)
+    if (!isExternalTaker) {
+      await upsertPosition(
+        tx,
+        market.id,
+        market.baseAssetId,
+        ev.takerUserId!,
+        ev.takerOrderId!,
+        ev.side!,
+        ev.price!,
+        ev.quantity!,
+        takerOrderLeverage(tx, ev.takerOrderId!),
+        takerOrderMarginMode(tx, ev.takerOrderId!)
+      );
+    }
+    if (!isExternalMaker) {
+      await upsertPosition(
+        tx,
+        market.id,
+        market.baseAssetId,
+        ev.makerUserId!,
+        ev.makerOrderId!,
+        ev.side === "buy" ? "sell" : "buy",
+        ev.price!,
+        ev.quantity!,
+        makerOrderLeverage(tx, ev.makerOrderId!),
+        makerOrderMarginMode(tx, ev.makerOrderId!)
+      );
+    }
   });
 }
 

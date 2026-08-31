@@ -1,5 +1,6 @@
 #pragma once
 #include "orderbook.h"
+#include "redis_client.h"
 #include <mutex>
 #include <map>
 #include <memory>
@@ -39,13 +40,18 @@ public:
   // List known markets.
   std::vector<std::string> markets() const;
 
+  // Provide Redis consumer for external liquidity (mark price fallback). If null, no external liquidity.
+  void setRedisForExternal(RedisConsumer* rc) { redisForExternal_ = rc; }
+
 private:
   mutable std::mutex mu_;
   std::map<std::string, std::shared_ptr<OrderBook>> books_;
   EventCallback cb_;
+  RedisConsumer* redisForExternal_ = nullptr;
 
   void publish(const nlohmann::json& ev);
   void placeOrder(const nlohmann::json& orderJson);
+  std::optional<Decimal> fetchMarkPrice(const std::string& market);
 };
 
 }  // namespace exch
